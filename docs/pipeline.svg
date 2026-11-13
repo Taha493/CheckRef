@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="210" viewBox="0 0 1200 210" role="img" aria-labelledby="t d">
+  <title id="t">How CiteSure checks a thesis</title>
+  <desc id="d">Upload, read the text with its italics, find the reference list, read each entry, check it against 78 rules, match the in-text citations, write the report.</desc>
+  <style>
+    .sans { font-family: "IBM Plex Sans", "Segoe UI", Helvetica, Arial, sans-serif; }
+    .mono { font-family: "IBM Plex Mono", Menlo, Consolas, monospace; }
+    .node { fill: #fff; stroke: #d5d7db; stroke-width: 2; animation: light 7s infinite; }
+    .num { fill: #5f636a; animation: num 7s infinite; }
+    .n2 { animation-delay: 1s; } .n3 { animation-delay: 2s; } .n4 { animation-delay: 3s; }
+    .n5 { animation-delay: 4s; } .n6 { animation-delay: 5s; } .n7 { animation-delay: 6s; }
+    .done { stroke-dasharray: 960; stroke-dashoffset: 960; animation: fill 7s linear infinite; }
+    @keyframes light { 0% { fill: #2855ad; stroke: #2855ad; } 12% { fill: #2855ad; stroke: #2855ad; } 20%, 100% { fill: #fff; stroke: #d5d7db; } }
+    @keyframes num { 0%, 12% { fill: #fff; } 20%, 100% { fill: #5f636a; } }
+    @keyframes fill { 0% { stroke-dashoffset: 960; } 86% { stroke-dashoffset: 0; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } .done { stroke-dashoffset: 0; } }
+  </style>
+  <rect x="1" y="1" width="1198" height="208" rx="16" fill="#f6f7f8" stroke="#e3e5e7"/>
+
+  <line x1="120" y1="78" x2="1080" y2="78" stroke="#e3e5e7" stroke-width="4" stroke-linecap="round"/>
+  <line class="done" x1="120" y1="78" x2="1080" y2="78" stroke="#95b2e5" stroke-width="4" stroke-linecap="round"/>
+  <g>
+    <rect x="-11" y="-14" width="22" height="28" rx="3" fill="#fff" stroke="#2855ad" stroke-width="2"/>
+    <path d="M-5 -6h10M-5 0h10M-5 6h6" stroke="#2855ad" stroke-width="1.6" stroke-linecap="round"/>
+    <animateMotion dur="7s" repeatCount="indefinite" path="M120 40 H1080" keyTimes="0;0.86;1" keyPoints="0;1;1" calcMode="linear"/>
+  </g>
+
+  <g class="sans" text-anchor="middle">
+    <circle class="node" cx="120" cy="78" r="17"/><text class="num mono" x="120" y="83" font-size="13" font-weight="600">1</text>
+    <text x="120" y="126" font-size="15" font-weight="600" fill="#1c1f25">Upload</text>
+    <text x="120" y="147" font-size="12.5" fill="#5f636a">PDF or Word</text>
+
+    <circle class="node n2" cx="280" cy="78" r="17"/><text class="num mono n2" x="280" y="83" font-size="13" font-weight="600">2</text>
+    <text x="280" y="126" font-size="15" font-weight="600" fill="#1c1f25">Read</text>
+    <text x="280" y="147" font-size="12.5" fill="#5f636a">text and italics</text>
+
+    <circle class="node n3" cx="440" cy="78" r="17"/><text class="num mono n3" x="440" y="83" font-size="13" font-weight="600">3</text>
+    <text x="440" y="126" font-size="15" font-weight="600" fill="#1c1f25">Find</text>
+    <text x="440" y="147" font-size="12.5" fill="#5f636a">the reference list</text>
+
+    <circle class="node n4" cx="600" cy="78" r="17"/><text class="num mono n4" x="600" y="83" font-size="13" font-weight="600">4</text>
+    <text x="600" y="126" font-size="15" font-weight="600" fill="#1c1f25">Parse</text>
+    <text x="600" y="147" font-size="12.5" fill="#5f636a">authors, year, title…</text>
+
+    <circle class="node n5" cx="760" cy="78" r="17"/><text class="num mono n5" x="760" y="83" font-size="13" font-weight="600">5</text>
+    <text x="760" y="126" font-size="15" font-weight="600" fill="#1c1f25">Check</text>
+    <text x="760" y="147" font-size="12.5" fill="#5f636a">78 APA 6th rules</text>
+
+    <circle class="node n6" cx="920" cy="78" r="17"/><text class="num mono n6" x="920" y="83" font-size="13" font-weight="600">6</text>
+    <text x="920" y="126" font-size="15" font-weight="600" fill="#1c1f25">Match</text>
+    <text x="920" y="147" font-size="12.5" fill="#5f636a">citations ↔ references</text>
+
+    <circle class="node n7" cx="1080" cy="78" r="17"/><text class="num mono n7" x="1080" y="83" font-size="13" font-weight="600">7</text>
+    <text x="1080" y="126" font-size="15" font-weight="600" fill="#1c1f25">Report</text>
+    <text x="1080" y="147" font-size="12.5" fill="#5f636a">PDF + corrected list</text>
+  </g>
+  <text x="600" y="186" text-anchor="middle" class="sans" font-size="12.5" fill="#6d7279">The uploaded file is deleted as soon as the check ends · the report after the PDF download or 60 minutes</text>
+</svg>

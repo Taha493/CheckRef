@@ -1,0 +1,652 @@
+# Rules (rulebook v1). Fields:
+#   id, title, level (error | needs_review), applies_to (template ids, "group:<name>",
+#   "all", or "in_text"), source {type, page, section, quote | ruling}, check (implementation key).
+# Source types and precedence: README.md.
+
+# Project rulings (spec §6), in the words shown in reports. Rules cite them by number.
+rulings:
+  "6.1":
+    title: Dashes in page ranges
+    text: "Page ranges use an en dash (21–27) or a hyphen (21-27); the guide accepts both. Any other dash, such as an em dash, and spaces around the dash are errors."
+  "6.2":
+    title: DOI and URL
+    text: "A DOI is written once, as https://doi.org/10.xxxx (not doi:, dx.doi.org or a library proxy address such as doi-org.ezproxy.aut.ac.nz), with no full stop after it, and never together with \"Retrieved from\". An online article without a DOI gives \"Retrieved from\" and the journal's homepage URL, not the article, database or PMC address. An article with neither a DOI nor a URL matches the guide's print template and is accepted."
+  "6.3":
+    title: Article numbers
+    text: "An article number in place of page numbers (Insects, 13(9), 836.) is accepted as written."
+  "6.4":
+    title: Publisher location
+    text: "The place of publication is required for every publisher: City, Country/State: Publisher."
+  "6.5":
+    title: Reference list heading
+    text: "The reference list needs a heading. \"References\" and \"Literature Cited\", in capitals or not, are accepted."
+  "6.6":
+    title: Layout of the reference list
+    text: "A hanging indent of about 0.5 inch (0.4–0.6 inch accepted); the guide's \"5–7 spaces\" is old typing advice. Line spacing is not checked: it belongs to the university's thesis format."
+  "6.7":
+    title: Italics
+    text: "Journals: the journal name and the volume are italic; the issue, pages and article title are not. Books, reports, webpages and videos: the title is italic. Chapters: the book title is italic, the chapter title is not."
+  "6.8":
+    title: Merged references
+    text: "Two references run together in one entry are an error; each part is checked on its own. A continuation line that only looks like a new reference is not an error."
+  "6.9":
+    title: Guide mistakes and matching
+    text: "Mistakes in the guide's own examples are never accepted, and an in-text citation must always match its reference: the same spelling of the authors' names and the same year."
+
+rules:
+
+  # ======================================================== whole reference list
+  - id: LST-HEADING-01
+    title: The reference list has a heading
+    level: error
+    applies_to: [list]
+    source: {type: ruling, ruling: "6.5"}
+    check: list_heading_present
+
+  - id: LST-HEADING-02
+    title: Heading is "References" or "Literature Cited"
+    level: needs_review
+    applies_to: [list]
+    source: {type: ruling, ruling: "6.5", page: referencelist, section: "Reference formatting guide",
+             quote: "Include the title 'References' (one word, beginning with a capital letter, centred, and not in italics"}
+    check: list_heading_accepted
+
+  - id: LST-ORDER-01
+    title: References are in alphabetical order of the first author's surname (or title when there is no author)
+    level: error
+    applies_to: [list]
+    source: {type: guide_text, page: books, section: "Newspaper article online, no author (PDF)",
+             quote: "No author: alphabetise by first significant title word."}
+    check: list_alphabetical
+
+  - id: LST-ORDER-02
+    title: Same first author — order by year, earlier first; same first author with different co-authors — order by the next author
+    level: error
+    applies_to: [list]
+    source: {type: guide_text, page: referencelist, section: "Reference formatting guide",
+             quote: "Order by year of publication, the earlier one first. … Same first author, different second author: Order alphabetically by second or subsequent authors"}
+    check: list_same_author_order
+
+  - id: LST-ORDER-03
+    title: Same author(s) and same year — add a, b … after the year
+    level: error
+    applies_to: [list]
+    source: {type: guide_text, page: referencelist, section: "Reference formatting guide",
+             quote: "Same year of publication for both - add 'a' and 'b' after the year, inside the brackets. Include this in the in text citation."}
+    check: list_year_suffix
+
+  - id: LST-DUP-01
+    title: The same reference appears more than once
+    level: error
+    applies_to: [list]
+    source: {type: derived, note: "A reference list lists each source once"}
+    check: list_duplicates
+
+  - id: LST-INTEXTONLY-01
+    title: Personal communications, whole websites and social-media feeds are cited in the text only, not in the reference list
+    level: error
+    applies_to: [list]
+    source: {type: guide_text, page: personalcommunications, section: "Personal communications",
+             quote: "No entry in the reference list is needed as personal communications are unable to be retrieved."}
+    check: list_in_text_only_types
+
+  - id: LST-MERGED-01
+    title: Two references are merged into one entry
+    level: error
+    applies_to: [list]
+    source: {type: ruling, ruling: "6.8"}
+    check: list_merged_entries
+
+  - id: LST-STYLE-01
+    title: The reference is written in a different citation style (e.g. Vancouver)
+    level: error
+    applies_to: [list]
+    source: {type: derived, note: "The whole reference list must follow APA 6th. A reference in another style, such as Vancouver or a numbered style, does not."}
+    check: list_foreign_style
+
+  - id: LST-TYPE-01
+    title: Source type could not be determined, or is not covered by rulebook v1
+    level: needs_review
+    applies_to: [list]
+    source: {type: derived, note: "CiteSure could not tell which kind of source this is, or the guide has no template for it, so the format could not be checked."}
+    check: list_type_unclear
+
+  # ====================================================================== layout
+  - id: LAY-INDENT-01
+    title: Hanging indent of about 0.5 inch (0.4–0.6 accepted)
+    level: error
+    applies_to: [list]
+    source: {type: ruling, ruling: "6.6", page: referencelist, section: "Reference formatting guide",
+             quote: "Hanging indent your references (space bar in 5 - 7 spaces for the second and subsequent lines of each reference)"}
+    check: layout_hanging_indent
+
+  # ===================================================================== authors
+  - id: REF-AUTH-01
+    title: "Personal authors are written Surname, Initials — initials with full stops and spaces (Alred, G. J.)"
+    level: error
+    applies_to: [all]
+    source: {type: guide_template, page: books, section: "Reference format for print books",
+             quote: "Author, Initial. (Year). Book title. City of publication, Country/State: Publisher."}
+    check: author_name_format
+
+  - id: REF-AUTH-02
+    title: "Use '&' before the final author, preceded by a comma (Li, S., & Seale, C.)"
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, page: referencelist, section: "Reference formatting guide",
+             quote: "Ampersand: Use for 2 - 6 authors, use \"&\" before the final author"}
+    check: author_ampersand
+
+  - id: REF-AUTH-03
+    title: One to seven authors — list all of them
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, page: referencelist, section: "Four to seven authors",
+             quote: "List all authors in the reference entry"}
+    check: author_list_complete
+
+  - id: REF-AUTH-04
+    title: Eight or more authors — first six, an ellipsis, then the last author
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, page: referencelist, section: "More than seven authors",
+             quote: "First 6 authors ... last author. and follow by date and other information."}
+    check: author_list_truncation
+
+  - id: REF-AUTH-05
+    title: "Editors of a chapter's book: initials before surname, with (Ed.) for one and (Eds.) for several"
+    level: error
+    applies_to: [book_chapter, ebook_chapter, symposium_contribution, tv_episode]
+    source: {type: guide_text, page: brief-guide-pdf, section: "Book chapter",
+             quote: "Editors: first name initial. surname."}
+    check: editors_format
+
+  - id: REF-AUTH-06
+    title: "Edited book: editors inverted, followed by (Ed.) or (Eds.) matching their number"
+    level: error
+    applies_to: [edited_book, journal_special_issue, book_multivolume]
+    source: {type: guide_template, page: books, section: "Edited book",
+             quote: "Sykes, P., & Potts, A. (Eds.). (2008). …"}
+    check: editors_inverted_format
+
+  # ======================================================================= dates
+  - id: REF-DATE-01
+    title: "Year in brackets after the author, followed by a full stop: (2008)."
+    level: error
+    applies_to: [all]
+    source: {type: guide_template, page: articles, section: "Journal articles - online",
+             quote: "Author, Initial. (Year). Title of the article"}
+    check: date_format
+
+  - id: REF-DATE-02
+    title: "No date: (n.d.); not yet published: (in press)"
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, page: brief-guide-pdf, section: "Website html - no date",
+             quote: "Reference List and In text: (n.d.) for no date."}
+    check: date_nd_in_press
+
+  - id: REF-DATE-03
+    title: "Magazines, newspapers, blogs and online videos give the exact date: (2009, April 23)"
+    level: error
+    applies_to: [magazine_article, newspaper_article, newspaper_article_no_author, blog_post, online_video, online_video_series]
+    source: {type: guide_text, page: brief-guide-pdf, section: "Magazine article online",
+             quote: "Reference List: Give the exact date of the article."}
+    check: date_exact
+
+  # ====================================================================== titles
+  - id: REF-TITLE-01
+    title: "Titles of articles, chapters, books, reports and web pages in sentence case"
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, page: referencelist, section: "Reference formatting guide",
+             quote: "Book title or article title (in a journal, magazine or newspaper) - use sentence style; i.e. capitalise the first word of the title, and subtitle (after the colon), and any proper names"}
+    check: title_sentence_case
+
+  - id: REF-TITLE-02
+    title: "Journal titles in headline style (all words capitalised except articles and prepositions)"
+    level: error
+    applies_to: ["group:journal", conference_paper_online]
+    source: {type: guide_text, page: referencelist, section: "Reference formatting guide",
+             quote: "Journal title - use headline style; i.e. capitalise all the words, except articles and prepositions"}
+    check: journal_headline_case
+
+  - id: REF-TITLE-03
+    title: Titles must not be written in capital letters throughout
+    level: error
+    applies_to: [all]
+    source: {type: derived, note: "Follows from the guide's capitalisation rules for titles (REF-TITLE-01 sentence style, REF-TITLE-02 headline style): neither writes a title in capital letters throughout."}
+    check: title_not_all_caps
+
+  # ==================================================================== journals
+  - id: REF-JRNL-01
+    title: Journal name written in full, not abbreviated
+    level: error
+    applies_to: ["group:journal"]
+    source: {type: derived, note: "The guide's journal templates give the full 'Title of the Journal' in headline style, and none of its examples abbreviates a journal name."}
+    check: journal_not_abbreviated
+
+  - id: REF-JRNL-02
+    title: Journal article has a volume number
+    level: error
+    applies_to: [journal_article, journal_article_no_doi_online, journal_special_issue]
+    source: {type: guide_template, page: articles, section: "Journal articles - in print",
+             quote: "Title of the Journal, volume(issue if used), pages."}
+    check: journal_volume_present
+
+  - id: REF-JRNL-03
+    title: "Issue in brackets straight after the volume, no space: 17(10)"
+    level: error
+    applies_to: ["group:journal"]
+    source: {type: guide_template, page: articles, section: "Journal articles - in print",
+             quote: "Title of the Journal, volume(issue if used), pages."}
+    check: journal_issue_format
+
+  - id: REF-JRNL-04
+    title: "Page range or article number after the volume/issue (article number accepted as written, ruling 6.3); journals and magazines without 'p.', newspapers with 'p.'/'pp.'"
+    level: error
+    applies_to: ["group:journal"]
+    source: {type: guide_text, ruling: "6.3", page: articles, section: "Magazines & newspapers",
+             quote: "Page numbers (if shown online): Magazines - include the numbers only, no p.; Newspapers - use p. or pp."}
+    check: journal_pages_format
+
+  # =========================================================== books and reports
+  - id: REF-BOOK-01
+    title: "Edition after the title in brackets, not italic: (3rd ed.)"
+    level: error
+    applies_to: ["group:book"]
+    source: {type: guide_template, page: books, section: "New edition of a book",
+             quote: "Berk, L. E. (2004). Development through the lifespan (3rd ed.). Boston, MA: Allyn and Bacon."}
+    check: edition_format
+
+  - id: REF-BOOK-02
+    title: "Chapter: page range in brackets after the book title (pp. 97–106)"
+    level: error
+    applies_to: [book_chapter, ebook_chapter]
+    source: {type: guide_text, page: brief-guide-pdf, section: "Book chapter",
+             quote: "the main entry in your list is the author of the chapter include the page numbers of the chapter."}
+    check: chapter_pages
+
+  - id: REF-BOOK-03
+    title: "Reprint or translation: (Original work published year) at the end"
+    level: error
+    applies_to: [book_reprint_translation]
+    source: {type: guide_text, page: books, section: "Reprints and translations",
+             quote: "give the date of the version that you have read after the author; put the date of the original publication at the end"}
+    check: original_work_published
+
+  - id: REF-REPORT-01
+    title: "Report number in brackets straight after the title: (Report No. 06.3)"
+    level: error
+    applies_to: [report_print, report_online]
+    source: {type: guide_text, page: reports, section: "Other types of reports",
+             quote: "Give the report number in parentheses ( ... ) immediately after the title"}
+    check: report_number_format
+
+  - id: REF-THESIS-01
+    title: "Thesis: degree type in brackets after the title; full university name; location outside the USA"
+    level: error
+    applies_to: ["group:thesis"]
+    source: {type: guide_text, page: theses, section: "Thesis from a NZ institutional repository",
+             quote: "Include the full URL for the thesis/dissertation and the full name of the degree-granting institution/university. Also include the location of the university, if outside the United States."}
+    check: thesis_details
+
+  - id: REF-CONF-01
+    title: "Unpublished conference paper: year and month of the meeting, 'Paper presented at …', location"
+    level: error
+    applies_to: [conference_paper_online, conference_paper_unpublished, symposium_contribution]
+    source: {type: guide_text, page: conferences, section: "Conference papers and presentations - not formally published",
+             quote: "Include the year and the month of the symposium or meeting"}
+    check: conference_details
+
+  - id: REF-SOFT-01
+    title: "Software: title not italic, followed by (Version x) and [type of software]"
+    level: error
+    applies_to: ["group:software"]
+    source: {type: guide_template, page: software, section: "Computer software and code",
+             quote: "Rightsholder, A. A. (year). Title of Software or Program (Version number) [Type of software]. Retrieved from http://xxxxx"}
+    check: software_format
+
+  # ======================================================= publisher and location
+  - id: REF-PUB-01
+    title: Publisher location is given whenever a publisher is given
+    level: error
+    applies_to: [all]
+    source: {type: ruling, ruling: "6.4"}
+    check: publisher_location_present
+
+  - id: REF-PUB-02
+    title: "Location format: USA 'City, ST'; elsewhere 'City, Country' in full"
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, page: referencelist, section: "Reference formatting guide",
+             quote: "USA publishers give the city in full and the abbreviation for the state. … Publishers outside the USA: Give the city in full and the country in full"}
+    check: publisher_location_format
+
+  - id: REF-PUB-03
+    title: "When the author is also the publisher, write 'Author' as the publisher"
+    level: error
+    applies_to: ["group:book", "group:report", manual]
+    source: {type: guide_text, page: books, section: "Corporate author as publisher",
+             quote: "In the reference list, where the author and publisher are the same, use the word Author in the publisher position."}
+    check: author_as_publisher
+
+  # ========================================================== square brackets
+  - id: REF-DESC-01
+    title: "Format description in square brackets straight after the title: [Video file], [Blog post], [PowerPoint slides]"
+    level: error
+    applies_to: ["group:av", "group:social", "group:software", web_document, course_material, ebook_url, journal_special_issue]
+    source: {type: guide_text, page: referencelist, section: "Use of square brackets",
+             quote: "If format, medium or description information is important for a resource to be retrieved or identified, use square brackets after the title to include this detail"}
+    check: description_brackets
+
+  # ================================================================ DOI and URL
+  - id: REF-DOI-01
+    title: "DOI written as https://doi.org/10.xxxx (not doi:, dx.doi.org or a library proxy link)"
+    level: error
+    applies_to: [all]
+    source: {type: ruling, ruling: "6.2", page: articles, section: "DOI and URL",
+             quote: "A new citing format for DOI was introduced by APA in March 2017. The new format includes https and the prefix doi.org",
+             note: "The same guide section also says: 'Articles retrieved from library databases may include ezproxy.aut.ac.nz in the DOIs. This ezproxy information should be removed.'"}
+    check: doi_format
+
+  - id: REF-DOI-02
+    title: No full stop after a DOI
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, page: articles, section: "DOI and URL", quote: "No full stop at the end of a DOI."}
+    check: doi_no_full_stop
+
+  - id: REF-DOI-03
+    title: The DOI appears once, with a single prefix
+    level: error
+    applies_to: [all]
+    source: {type: ruling, ruling: "6.2"}
+    check: doi_single
+
+  - id: REF-DOI-05
+    title: A DOI is not combined with "Retrieved from"
+    level: error
+    applies_to: [all]
+    source: {type: ruling, ruling: "6.2"}
+    check: doi_not_with_url
+
+  - id: REF-URL-01
+    title: Journal article without a DOI uses the journal's homepage URL, not the article URL or a database/PMC link
+    level: error
+    applies_to: [journal_article_no_doi_online, magazine_article, newspaper_article, newspaper_article_no_author]
+    source: {type: ruling, ruling: "6.2", page: articles, section: "DOI and URL",
+             quote: "Use the URL of the journal homepage, NOT the full URL of the article, in your reference."}
+    check: url_homepage_only
+
+  - id: REF-URL-02
+    title: Items from a library database give the database homepage only
+    level: error
+    applies_to: [ebook_url, report_database, thesis_database, database_article_no_author]
+    source: {type: guide_text, page: referencelist, section: "DOI and URL",
+             quote: "Do not use the full URL of the source that you retrieved from a database."}
+    check: url_database_homepage
+
+  - id: REF-URL-03
+    title: Retrieval date only for content likely to change (HTML pages, wikis); never for PDFs, journals, magazines, newspapers or videos
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, page: websites, section: "Webpages - html",
+             quote: "html websites are likely to change or be updated → do usually include a date of retrieval. PDF documents are not likely to change → don't include a date of retrieval."}
+    check: retrieval_date_usage
+
+  - id: REF-URL-04
+    title: HTML web page without a retrieval date
+    level: needs_review
+    applies_to: [webpage, webpage_no_author, dictionary_entry_online]
+    source: {type: guide_text, page: websites, section: "Webpages - html",
+             quote: "Generally, if a webpage could change do include the date you retrieved it"}
+    check: retrieval_date_recommended
+
+  - id: REF-URL-05
+    title: "'Retrieved from URL', or 'Retrieved Month day, year, from URL' when a retrieval date is given"
+    level: error
+    applies_to: [all]
+    source: {type: guide_template, page: websites, section: "Webpages",
+             quote: "Author, A. (date). Title of document [Format description]. Retrieved from http://xxx"}
+    check: retrieval_statement_format
+
+  - id: REF-URL-06
+    title: No full stop after a URL
+    level: error
+    applies_to: [all]
+    source: {type: guide_examples, note: "No guide example ends a URL with a full stop (the one exception, Austen 1853, is excluded)"}
+    check: url_no_full_stop
+
+  # ================================================================ typography
+  - id: FMT-DASH-01
+    title: "Page ranges use an en dash (21–27) or a hyphen (21-27); any other dash, such as an em dash, is wrong"
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, ruling: "6.1", page: referencelist, section: "Reference formatting guide",
+             quote: "Use an en dash, NOT a hyphen, for page ranges: e.g. 21–27. … NB: If your keyboard will not produce an en dash, it is acceptable to use a hyphen instead."}
+    check: page_range_dash
+
+  - id: FMT-DASH-02
+    title: No spaces around the en dash in a page range
+    level: error
+    applies_to: [all]
+    source: {type: guide_text, page: referencelist, section: "Reference formatting guide",
+             quote: "No gaps between the page numbers and the en dash."}
+    check: page_range_spacing
+
+  - id: FMT-ITAL-01
+    title: Journal, magazine and newspaper names and the volume number are italic; issue, pages and article title are not
+    level: error
+    applies_to: ["group:journal"]
+    source: {type: guide_examples, ruling: "6.7", note: "Shown in every journal template and example in the guide."}
+    check: italics_periodical
+
+  - id: FMT-ITAL-02
+    title: Titles of books, reports, web pages, web documents, theses, videos and standards are italic
+    level: error
+    applies_to: ["group:book", "group:report", "group:web", "group:thesis", "group:av", "group:standard", conference_paper_online, conference_paper_unpublished]
+    source: {type: guide_text, page: books, section: "No author",
+             quote: "italics for the title of a journal or book or brochure or report"}
+    check: italics_title
+
+  - id: FMT-ITAL-03
+    title: "Chapter or entry title not italic; the book or work title italic"
+    level: error
+    applies_to: [book_chapter, ebook_chapter, dictionary_entry_online, symposium_contribution, tv_episode]
+    source: {type: guide_examples, ruling: "6.7", note: "Shown in the guide's examples Easton (2008), Root (2007) and Helmig & Thaler (2010)."}
+    check: italics_chapter
+
+  - id: FMT-ITAL-04
+    title: "Not italic: blog post titles, series videos, software titles"
+    level: error
+    applies_to: [blog_post, online_video_series, software, software_no_author]
+    source: {type: guide_text, page: blogs, section: "Blogs",
+             quote: "Blog posts are part of a series and so the title of the post is not in italics"}
+    check: italics_not_expected
+
+  - id: FMT-ORDER-01
+    title: Elements in the order and with the punctuation of the source type's template
+    level: error
+    applies_to: [all]
+    source: {type: guide_template, note: "The guide's template for this kind of source."}
+    check: template_structure
+
+  - id: FMT-SPACE-01
+    title: Missing space between elements (e.g. '640.Dee')
+    level: error
+    applies_to: [all]
+    source: {type: derived, note: "Every template and example in the guide puts a space after the punctuation that separates two elements."}
+    check: missing_space
+
+  # =================================================== in-text citations
+  - id: CIT-AMP-01
+    title: "'&' between authors inside brackets; 'and' in running text"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "Authors - summary",
+             quote: "in brackets use & between authors … in a sentence use and between authors"}
+    check: cite_ampersand
+
+  - id: CIT-PUNCT-01
+    title: "Comma before the year and before '&' with three or more authors: (Alred, Brusaw, & Oliu, 2009)"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_examples, page: intextcitation, section: "Three, four or five authors",
+             quote: "(Alred, Brusaw, & Oliu, 2009)"}
+    check: cite_punctuation
+
+  - id: CIT-ETAL-01
+    title: One or two authors — name both in every citation
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "Authors - summary", quote: "1-2: Both authors | Both authors"}
+    check: cite_et_al_1_2
+
+  - id: CIT-ETAL-02
+    title: Three to five authors — all names in the first citation, then first author et al.
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "Authors - summary", quote: "3-5: All authors | First author et al."}
+    check: cite_et_al_3_5
+
+  - id: CIT-ETAL-03
+    title: Six or more authors — first author et al. from the first citation
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "Authors - summary", quote: "6-7: First author et al. | First author et al. … 8+: First author et al."}
+    check: cite_et_al_6_plus
+
+  - id: CIT-ETAL-04
+    title: "'et al.' written with a full stop after 'al'"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_examples, page: intextcitation, section: "Three, four or five authors", quote: "(Alred et al., 2009)"}
+    check: cite_et_al_spelling
+
+  - id: CIT-CORP-01
+    title: "Corporate author abbreviation introduced in the first citation [IRD], then used"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: books, section: "Corporate author (organization)",
+             quote: "The first time you cite it in-text, write the corporate author in full with its abbreviation in square brackets \"[...]\" plus date. In subsequent citations use the abbreviation plus date."}
+    check: cite_corporate_abbreviation
+
+  - id: CIT-MULTI-01
+    title: Several works in one bracket — alphabetical order, separated by semicolons
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "Two or more citations",
+             quote: "Same alphabetical order as in your reference list. Separated by a semi colon ;"}
+    check: cite_multiple_order
+
+  - id: CIT-MULTI-02
+    title: "Several works by the same author — name once, years in order: (Gogel, 1990, 2006)"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "Two or more citations", quote: "Give the authors' surnames once only"}
+    check: cite_same_author_once
+
+  - id: CIT-SAME-01
+    title: First authors who share a surname — add initials in every citation
+    level: needs_review
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "Authors with the same surname",
+             quote: "If lead authors share the same surname, include author's initials in all in-text citations even if the year of publication differs."}
+    check: cite_same_surname_initials
+
+  - id: CIT-QUOTE-01
+    title: "Direct quotes give a page number: p. 378 / pp. 111–112"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "Direct quotes",
+             quote: "Your in-text citation for direct quotations should include author, date, and page numbers."}
+    check: cite_quote_page
+
+  - id: CIT-NOAUTH-01
+    title: "No author — first words of the title in quotation marks (article, web page) or italics (book, report), with capitals"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "No author",
+             quote: "Put double quotation marks around the title of an article or a website; use capitals … Periodical, book, brochure or report: Use italics and capitals"}
+    check: cite_no_author
+
+  - id: CIT-SECOND-01
+    title: "Secondary source: '(as cited in Author, year)', and only the secondary source in the reference list"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: intextcitation, section: "Secondary citations",
+             quote: "Name the author of the original work in your text, cite the secondary source in in-text citation: (as cited in ..., 1993)"}
+    check: cite_secondary
+
+  - id: CIT-PERS-01
+    title: "Personal communication — initials and an exact date: (I. Tokugawa, personal communication, January 25, 2019)"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: personalcommunications, section: "Personal communications", quote: "Include initials and an exact date."}
+    check: cite_personal_communication
+
+  - id: CIT-REPRINT-01
+    title: "Reprints and translations give both years: (Freud, 1900/1953)"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: books, section: "Reprints and translations", quote: "in text give both dates: (Freud, 1900/1953)."}
+    check: cite_reprint_years
+
+  # Note: the year-first narrative form ("In 2001, Smith found …") is ALLOWED — the guide
+  # uses it itself (intextcitation, Long direct quotes). Its author part is checked by the
+  # rules above (e.g. CIT-AMP-01: "and", not "&", in running text).
+
+  # ==================================================== matching (spec ⑩)
+  - id: MAT-01
+    title: Cited in the text but not in the reference list
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: referencelist, section: "Reference List",
+             quote: "All references cited in the text must appear in the reference list, except for personal communications"}
+    check: match_cited_not_listed
+
+  - id: MAT-02
+    title: In the reference list but never cited in the text
+    level: error
+    applies_to: [list]
+    source: {type: guide_text, page: referencelist, section: "Reference List",
+             quote: "A reference list lists only the sources you refer to in your writing."}
+    check: match_listed_not_cited
+
+  - id: MAT-03
+    title: Year differs between the citation and the reference
+    level: error
+    applies_to: [in_text]
+    source: {type: ruling, ruling: "6.9", note: "An in-text citation must always match its reference"}
+    check: match_year_mismatch
+
+  - id: MAT-04
+    title: Author name spelt differently in the citation and the reference
+    level: error
+    applies_to: [in_text]
+    source: {type: ruling, ruling: "6.9"}
+    check: match_spelling_mismatch
+
+  - id: MAT-05
+    title: The citation could refer to more than one reference — add authors or initials to tell them apart
+    level: error
+    applies_to: [in_text]
+    source: {type: derived, note: "Follows from the guide's et al. and same-surname rules: a citation must point to exactly one reference."}
+    check: match_ambiguous
+
+  - id: MAT-06
+    title: "Year suffix (a, b) used in one place but not the other"
+    level: error
+    applies_to: [in_text]
+    source: {type: guide_text, page: referencelist, section: "Reference formatting guide",
+             quote: "add 'a' and 'b' after the year, inside the brackets. Include this in the in text citation."}
+    check: match_year_suffix
+
+  # ============================================== recency (spec §7, optional)
+  - id: REC-01
+    title: Share of references from the last 5 years meets the required share
+    level: error
+    applies_to: [list]
+    source: {type: derived, note: "University synopsis rule, not APA. Off by default."}
+    check: recency_share

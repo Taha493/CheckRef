@@ -1,0 +1,461 @@
+# Source-type templates (rulebook v1). Pattern language: see README.md.
+# `source` points into the frozen snapshot: data/guide/md/<page>.md, section heading.
+# Examples are copied from the guide with mistakes corrected only where listed in
+# excluded_examples.yaml; italics are shown as *...*.
+
+templates:
+
+  # ------------------------------------------------------------------ journals
+  - id: journal_article
+    name: Journal article (print or online)
+    group: journal
+    pattern: "{author} ({year}). {title}. *{journal}, {volume}*[({issue})], {pages|article_number}.[ {doi}]"
+    source: {page: articles, section: "Journal articles - online / Journal articles - in print"}
+    notes:
+      - "Issue only if used. Article number in place of pages accepted (ruling 6.3)."
+      - "DOI when available; no full stop after it (ruling 6.2)."
+      - "No DOI and no URL matches the print template and is accepted (ruling 6.2)."
+      - "Page range with an en dash or a hyphen (ruling 6.1)."
+    examples:
+      - "Li, S., & Seale, C. (2007). Learning to do qualitative data analysis: An observational study of doctoral work. *Qualitative Health Research*, *17*, 1442–1452. https://doi.org/10.1177/1049732307306924"
+      - "McFeely, S. (2001). Young people’s pathway to smoking cessation. *Nursing Standard*, *16*(2), 39–42."
+      - "Washington, E. T. (2014). An overview of cyberbully in higher education. *Adult Learning*, *26*(1), 21–27. https://doi.org/10.1177/1045159514558412"
+      - "Orazi, D. C., Lei, J., & Bove, L. L. (2015). The nature and framing of gambling consequences in advertising. *Journal of Business Research, 68*(10), 2049-2056. https://doi.org/10.1016/j.jbusres.2015.03.002"
+
+  - id: journal_article_no_doi_online
+    name: Journal article online, no DOI
+    group: journal
+    pattern: "{author} ({year}). {title}. *{journal}, {volume}*[({issue})], {pages|article_number}. Retrieved from {homepage_url}"
+    source: {page: articles, section: "Journal articles - online (Article without doi)"}
+    notes:
+      - "Journal HOMEPAGE URL, not the article URL; no retrieval date."
+      - "A database homepage (e.g. JSTOR) only if the journal has no homepage, is discontinued, or is archive-only."
+    examples:
+      - "Bartlett, R. P. (2009). Going private but staying public: Re-examining the effect of Sarbanes-Oxley on firms going-private decisions. *The University of Chicago Law Review, 76,* 7–39. Retrieved from http://lawreview.uchicago.edu/"
+
+  - id: journal_article_in_press
+    name: Journal article in press
+    group: journal
+    pattern: "{author} (in press). {title}. *{journal}*. {doi|retrieved_from}"
+    source: {page: articles, section: "Journal articles - in press"}
+    examples:
+      - "Brey, P. (in press). The strategic role of technology in a good society. *Technology in Society*. https://doi.org/10.1016/j.techsoc.2017.02.002"
+
+  - id: journal_article_advance_online
+    name: Journal article, advance online publication
+    group: journal
+    pattern: "{author} ({year}). {title}. *{journal}*. Advance online publication. {doi}"
+    source: {page: articles, section: "With doi, advance online publication"}
+    examples:
+      - "Von Ledebur, S. C. (2007). Optimizing knowledge transfer by new employees in companies. *Knowledge Management Research & Practice*. Advance online publication. https://doi.org/10.1057/palgrave.kmrp.8500141"
+
+  - id: journal_special_issue
+    name: Entire special issue of a journal
+    group: journal
+    pattern: "{editors_inverted} ({ed}). ({year}). {title} [Special issue]. *{journal}, {volume}*({issue})."
+    source: {page: articles, section: "Special issues"}
+    examples:
+      - "Haney, C., & Wiener, R. L. (Eds.). (2004). Capital punishment in the United States [Special issue]. *Psychology, Public Policy, and Law, 10*(4)."
+
+  - id: magazine_article
+    name: Magazine article (print or online)
+    group: journal
+    pattern: "{author} ({year}, {month}[ {day}]). {title}. *{magazine}*[, *{volume}*][({issue})][, {pages}].[ Retrieved from {homepage_url}]"
+    source: {page: articles, section: "Magazines & newspapers"}
+    notes:
+      - "Month for monthlies, month and day for weeklies, season if given."
+      - "Page numbers without p.; no retrieval date; homepage URL of the publication."
+    examples:
+      - "Read, E. (2007, November 1). Myth-busting gen Y. *New Zealand Management*, *54*(10), 63–64. Retrieved from http://www.management.co.nz"
+
+  - id: newspaper_article
+    name: Newspaper article (print or online)
+    group: journal
+    pattern: "{author} ({year}, {month} {day}). {title}. *{newspaper}*[, {page_prefix} {pages}].[ Retrieved from {homepage_url}]"
+    source: {page: articles, section: "Magazines & newspapers"}
+    notes:
+      - "Newspapers use p. or pp. before page numbers."
+      - "No author: the title moves to the author position (see newspaper_article_no_author)."
+    examples:
+      - "Zendrian, A. (2008, April 15). CEO pay too high? *The New York Times*. Retrieved from http://www.nytimes.com"
+      - "Fleming, G. (2008, November 4). Shaking up the working world. *The New Zealand Herald*, p. D1."
+
+  - id: newspaper_article_no_author
+    name: Newspaper article, no author
+    group: journal
+    pattern: "{title}. ({year}, {month} {day}). *{newspaper}*[, {page_prefix} {pages}].[ Retrieved from {homepage_url}]"
+    source: {page: articles, section: "Magazines & newspapers (No author)"}
+    examples:
+      - "Nuke test inquiry doubted. (2009, April 23). *The Dominion Post*, p. 5. Retrieved from http://www.stuff.co.nz/dominion-post"
+
+  - id: database_article_no_author
+    name: Industry/product article from a library database
+    group: journal
+    pattern: "{corporate_author}. ({year}, {month} {day}). *{title}*. Retrieved from {database} database."
+    source: {page: articles, section: "Articles from library databases"}
+    examples:
+      - "Euromonitor International. (2017, January 27). *Coffee in New Zealand*. Retrieved from Passport database."
+
+  # --------------------------------------------------------------------- books
+  - id: book
+    name: Book (print)
+    group: book
+    pattern: "{author} ({year}). *{title}*[ ({edition} ed.)]. {location}: {publisher}."
+    source: {page: books, section: "Books (Reference format for print books)"}
+    notes:
+      - "Publisher location mandatory (ruling 6.4): US City, ST; elsewhere City, Country."
+      - "Edition in brackets after the title, not italic."
+    examples:
+      - "Gambles, I. (2009). *Making the business case: Proposals that succeed for projects that work*. Farnham, England: Ashgate."
+      - "Gazda, G. M., Balzer, F. J., Childers, W. C., Nealy, A. U., Phelps, R. E., & Walters, R. P. (2005). *Human relations development: A manual for educators* (7th ed.). Boston, MA: Pearson Educational."
+      - "Berk, L. E. (2004). *Development through the lifespan* (3rd ed.). Boston, MA: Allyn and Bacon."
+      - "Watson, S., Gunasekara, G., Gedye, M., van Roy, Y., Ross, M., Longdin, L., … Brown, L. (2003). *Law of business organisations* (4th ed.). Auckland, New Zealand: Palatine Press."
+
+  - id: book_no_author
+    name: Book, no author
+    group: book
+    pattern: "*{title}*[ ({edition} ed.)]. ({year}). {location}: {publisher}."
+    source: {page: books, section: "No author"}
+    examples:
+      - "*Collins concise New Zealand dictionary* (7th ed.). (2008). London, England: Collins."
+
+  - id: book_author_as_publisher
+    name: Book, corporate author is also the publisher
+    group: book
+    pattern: "{corporate_author}. ({year}). *{title}*. {location}: Author."
+    source: {page: books, section: "Corporate author as publisher"}
+    examples:
+      - "New Zealand Universities Academic Audit Unit. (1988). *Academic audit reports: Reports of the general academic audits of New Zealand universities*. Wellington, New Zealand: Author."
+
+  - id: edited_book
+    name: Edited book (incl. custom textbooks, proceedings published as a book)
+    group: book
+    pattern: "{editors_inverted} ({ed}). ({year}). *{title}*[ [{description}]]. {location}: {publisher}."
+    source: {page: books, section: "Edited book; Book compilations / custom publications"}
+    examples:
+      - "Sykes, P., & Potts, A. (Eds.). (2008). *Researching education from the inside: Investigations from within*. London, England: Routledge."
+      - "Mpofu, C. (Ed.). (2010). *Psychology and lifespan development: An introductory text for health professionals* [Custom textbook]. North Shore, New Zealand: Pearson Custom Publication."
+      - "Olsson, S., & Stirton, N. (Eds.). (1996). *Women and leadership: Power and practice: International conference, 1996*. Palmerston North, New Zealand: Massey University."
+
+  - id: book_chapter
+    name: Chapter in an edited book (print)
+    group: book
+    pattern: "{author} ({year}). {chapter_title}. In {editors} ({ed}), *{book_title}* ([{edition} ed., ]pp. {pages}). {location}: {publisher}."
+    source: {page: books, section: "Chapter from an edited book"}
+    notes:
+      - "Chapter title not italic; book title italic; editors with initials first."
+    examples:
+      - "Easton, B. (2008). Does poverty affect health? In K. Dew & A. Matheson (Eds.), *Understanding health inequalities in Aotearoa New Zealand* (pp. 97–106). Dunedin, New Zealand: Otago University Press."
+      - "Root, J. (2007). Film noir. In P. Cook (Ed.), *The cinema book* (3rd ed., pp. 305–315). London, England: British Film Institute."
+
+  - id: book_multivolume
+    name: Several volumes in a multivolume work
+    group: book
+    pattern: "{editors_inverted} ({ed}). ({year_range}). *{title}* (Vols. {volumes}). {location}: {publisher}."
+    source: {page: books, section: "Several volumes in a multivolume work"}
+    examples:
+      - "Koch, S. (Ed.). (1959-1963). *Psychology: A study of science* (Vols. 1-6). New York, NY: McGraw-Hill."
+
+  - id: book_reprint_translation
+    name: Reprint, translation or classical work
+    group: book
+    pattern: "{author} ({year}). *{title}*[ ({translator}, Trans.)]. {location}: {publisher}. (Original work published {original_year})"
+    source: {page: books, section: "Reprints and translations; Classical works"}
+    notes:
+      - "In text give both dates: (Freud, 1900/1953)."
+    examples:
+      - "Plato. (1961). *Meno* (R. S. Bluck, Trans.). Cambridge, England: Cambridge University Press. (Original work published ca. 380 B.C.)"
+
+  - id: ebook_doi
+    name: E-book with DOI
+    group: book
+    pattern: "{author} ({year}). *{title}*. {doi}"
+    source: {page: books, section: "ebook - with DOI"}
+    examples:
+      - "Schiraldi, G. R. (2001). *The post-traumatic stress disorder sourcebook: A guide to healing, recovery, and growth*. https://doi.org/10.1036/0071393722"
+
+  - id: ebook_url
+    name: E-book without DOI (Kindle, free online, library database)
+    group: book
+    pattern: "{author} ({year}). *{title}*[ [{description}]]. Retrieved from {url}"
+    source: {page: books, section: "ebook - Kindle / free online / via the AUT Library"}
+    notes:
+      - "Library database: homepage URL only, ezproxy removed."
+    examples:
+      - "Gladwell, M. (2008). *Outliers: The story of success* [Kindle DX version]. Retrieved from http://www.amazon.com"
+      - "Mollison, M. (2010). *Producing videos: A complete guide*. Retrieved from http://www.proquest.com"
+
+  - id: ebook_chapter
+    name: Chapter in an edited e-book
+    group: book
+    pattern: "{author} ({year}). {chapter_title}. In {editors} ({ed}), *{book_title}*[ ({edition} ed.)][ (pp. {pages})]. {doi|retrieved_from}"
+    source: {page: books, section: "Chapter in an edited ebook - with DOI / not from AUT Library"}
+    examples:
+      - "Helmig, B., & Thaler, J. (2010). Nonprofit marketing. In R. Taylor (Ed.), *Third sector research* (pp. 151–169). https://doi.org/10.1007/978-1-4419-5707-8_12"
+
+  - id: dictionary_entry_online
+    name: Online dictionary or encyclopedia entry (incl. wikis)
+    group: book
+    pattern: "{term}. ({year|nd}). In *{work}*[ ({edition} ed.)]. Retrieved [{retrieval_date}, from|from] {url}"
+    source: {page: books, section: "Online dictionary definition; websites: Wikis"}
+    examples:
+      - "Light. (n.d.). In *Merriam-Webster’s online dictionary* (11th ed.). Retrieved from http://www.merriam-webster.com/dictionary/light"
+      - "Global warming. (n.d.). In *Wikipedia*. Retrieved December 6, 2009, from http://en.wikipedia.org/wiki/Global_warming"
+
+  # ------------------------------------------------------------------ web
+  - id: webpage
+    name: Web page (HTML)
+    group: web
+    pattern: "{author} ({year|nd}). *{title}*[ [{description}]]. Retrieved [{retrieval_date}, from|from] {url}"
+    source: {page: websites, section: "Webpages - html"}
+    notes:
+      - "HTML pages are likely to change: usually include the retrieval date."
+      - "Format description in brackets only when out of the ordinary."
+    examples:
+      - "Flesch, R. (n.d.). *How to write plain English*. Retrieved April 12, 2009, from http://www.mang.canterbury.ac.nz/writing_guide/writing/flesch.shtml"
+      - "Department of Internal Affairs. (n.d.). *History of daylight saving*. Retrieved October 29, 2012, from http://www.dia.govt.nz/Daylight-Saving-History"
+
+  - id: webpage_no_author
+    name: Web page, no author
+    group: web
+    pattern: "*{title}*. ({year|nd}). Retrieved [{retrieval_date}, from|from] {url}"
+    source: {page: websites, section: "Webpage – no author"}
+    examples:
+      - "*Rugby World Cup 2011 pools announced*. (2008). Retrieved May 1, 2009, from http://www.rugbyworldcup.com/mediazone/news/newsid=2027914.html"
+
+  - id: web_document
+    name: Document on a website (PDF, PowerPoint, press release, annual report)
+    group: web
+    pattern: "{author} ({year}). *{title}*[ [{description}]]. Retrieved from {url}"
+    source: {page: websites, section: "PDFs and PowerPoints - documents from websites; Press release"}
+    notes:
+      - "PDFs are not likely to change: no retrieval date."
+    examples:
+      - "Ministry of Health. (2010). *Customary tattooing guidelines for operators*. Retrieved from http://www.moh.govt.nz/moh.nsf/pagesmh/10068/$File/customary-tattooing-guidelines-for-operators-apr2010v2.pdf"
+      - "Sontheimer, R. (2009). *Changes in APA formatting: APA 6th edition* [PowerPoint slides]. Retrieved from http://www.writing.ku.edu/~writing/guides/documents/NewAPA.ppt"
+      - "King Fish Media. (2010). *The perfect marriage of content and technology: Is social media the new CRM?* [Press release]. Retrieved from http://www.prnewswire.com/news-releases/the-perfect-marriage-of-content-and-technology--is-social-media-the-new-crm-100760344.htm"
+
+  - id: course_material
+    name: Lecture or course notes / slides from a learning system
+    group: web
+    pattern: "{author} ({year}). *{title}* [{description}]. {paper_name}. Retrieved from {url}"
+    source: {page: lecturenotes, section: "Lecture notes"}
+    examples:
+      - "Furbish, D. (2009). *Developmental career theory* [Course notes]. Work in Careers 297300. Retrieved from https://blackboard.aut.ac.nz"
+
+  # --------------------------------------------------------------- reports
+  - id: report_print
+    name: Report (print)
+    group: report
+    pattern: "{author} ({year}). *{title}*[ ({report_number})]. {location}: {publisher}."
+    source: {page: reports, section: "Other types of reports (Reference format for print report)"}
+    examples:
+      - "Waitangi Tribunal. (2015). *He Whiritaunoka: The Whanganui land report* (Report no. Wai 903). Lower Hutt, New Zealand: Legislation Direct."
+
+  - id: report_online
+    name: Report (online)
+    group: report
+    pattern: "{author} ({year}). *{title}*[ ({report_number})]. Retrieved from [{publisher} website: ]{url}"
+    source: {page: reports, section: "Online reports"}
+    notes:
+      - "Name the publisher in the retrieval statement when it is not the author."
+    examples:
+      - "Kessy, S. S. A., & Urio, F. M. (2006). *The contribution of microfinance institutions to poverty reduction in Tanzania* (Research Report No. 06.3). Retrieved from Research on Poverty Alleviation website: http://www.repoa.or.tz/documents_storage/Publications/Reports/06.3_Kessy_and_Urio.pdf"
+      - "Ministry of Health. (2007). *Diabetes surveillance: Population-based estimates and projections for New Zealand, 2001–2011* (Public Health Intelligence Occasional Bulletin No. 46). Retrieved from http://www.moh.govt.nz/moh.nsf/pagesmh/6796/$File/diabetes-suveillance-population-estimates-projections-2001-2011.pdf"
+
+  - id: report_database
+    name: Report from a library database (incl. ERIC)
+    group: report
+    pattern: "{author} ({date}). *{title}*. Retrieved from {database} database.[ ({accession_number})]"
+    source: {page: reports, section: "Reports from Library databases; ERIC document"}
+    examples:
+      - "Auckland International Airport. (2008). *We're in a great place: Annual report 2008*. Retrieved from NZX Company Research database."
+      - "Brewster, C., & Railsback, J. (2002). *Full-day kindergarten: Exploring an option for extended learning*. Retrieved from ERIC database. (ED472733)"
+
+  # ---------------------------------------------------------------- theses
+  - id: thesis_database
+    name: Thesis from a commercial database
+    group: thesis
+    pattern: "{author} ({year}). *{title}* ({degree}). Available from {database}. ({accession_number})"
+    source: {page: theses, section: "Theses and dissertations from online sources"}
+    examples:
+      - "Pflieger, J. C. (2009). *Adolescents' parent and peer relations and romantic outcomes in young adulthood* (Doctoral dissertation). Available from ProQuest Dissertations & Theses Global database. (UMI No. 3371229)"
+
+  - id: thesis_repository
+    name: Thesis from an institutional repository
+    group: thesis
+    pattern: "{author} ({year}). *{title}* ({degree}, {institution}, {location}). Retrieved from {url}"
+    source: {page: theses, section: "Thesis from a NZ institutional repository"}
+    notes:
+      - "Full name of the university; its location if outside the USA."
+    examples:
+      - "Thomas, R. (2009). *The making of a journalist: The New Zealand way* (Doctoral thesis, Auckland University of Technology, Auckland, New Zealand). Retrieved from http://hdl.handle.net/10292/466"
+
+  - id: thesis_unpublished
+    name: Unpublished thesis (hardcopy)
+    group: thesis
+    pattern: "{author} ({year}). *{title}* (Unpublished {degree}). {institution}, {location}."
+    source: {page: theses, section: "Theses and dissertations in hardcopy format"}
+    examples:
+      - "Knight, A. (2001). *Exercise and osteoarthritis of the knee* (Unpublished master's dissertation). Auckland University of Technology, Auckland, New Zealand."
+
+  # ------------------------------------------------------------ conferences
+  - id: conference_paper_online
+    name: Conference paper found online (incl. abstracts)
+    group: conference
+    pattern: "{author} ({year}, {month}). *{title}*. Paper presented at {meeting}, {location}. {retrieved_from|abstract_retrieved_from}"
+    source: {page: conferences, section: "Conference papers found online; Conference paper - abstract retrieved online"}
+    examples:
+      - "Markman, K. M. (2003, October). *Taking the flesh with me: Embodied interaction as a framework for studying Internet communication*. Paper presented at the meeting of the Association of Internet Researchers, Toronto, Canada. Retrieved from https://umdrive.memphis.edu/kmmrkman/www/KMarkmanAOIR4Paper.pdf"
+
+  - id: conference_paper_unpublished
+    name: Conference paper, not formally published
+    group: conference
+    pattern: "{author} ({year}, {month}). *{title}*. Paper presented at the meeting of {organisation}, {location}."
+    source: {page: conferences, section: "Paper presented in a conference"}
+    notes:
+      - "Include the year and month of the meeting."
+    examples: []
+
+  - id: symposium_contribution
+    name: Symposium contribution
+    group: conference
+    pattern: "{author} ({year}, {month}). {title}. In {chair} (Chair), *{symposium_title}*. Symposium conducted at the meeting of {organisation}, {location}."
+    source: {page: conferences, section: "Symposium contribution"}
+    examples:
+      - "Muellbauer, J. (2007, September). Housing, credit, and consumer expenditure. In S. C. Ludvigson (Chair), *Housing and consumer behaviour*. Symposium conducted at the meeting of the Federal Reserve Bank of Kansas City, Jackson Hole, WY."
+  # Proceedings published regularly in a journal -> journal_article; published as a book ->
+  # edited_book / book_chapter (guide: Conference papers and proceedings - published).
+
+  # -------------------------------------------------------------- software
+  - id: software
+    name: Computer software, code or mobile app
+    group: software
+    pattern: "{author} ({year}). {title}[ (Version {version})] [{software_type}].[ {location}: {publisher}.][ Retrieved from {url}]"
+    source: {page: software, section: "Computer software and code; Mobile apps"}
+    notes:
+      - "Software title is not italic. Standard software (Word, SPSS, SAS, Java, Photoshop) need not be cited."
+    examples:
+      - "Esolang, A. N. (2014). Obscure Reference Generator [Computer software]. Washington, DC: E & K Press."
+      - "Skyscape. (2013). Skyscape Medical Resources (Version 1.17.42) [Mobile application software]."
+
+  - id: software_no_author
+    name: Computer software, no rightsholder
+    group: software
+    pattern: "{title} [{software_type}]. ({year}). Retrieved from {url}"
+    source: {page: software, section: "Computer software and code"}
+    examples:
+      - "Customized Synergy [Computer software]. (2014). Retrieved from http://customizedsynergy.com"
+
+  - id: manual
+    name: Manual or handbook
+    group: software
+    pattern: "{corporate_author}. ({year}). *{title}*. {location}: {publisher}."
+    alternatives:
+      - "{corporate_author}. ({year}). *{title}*. Retrieved from {url}"
+    source: {page: software, section: "Manuals and handbooks"}
+    examples:
+      - "Honeywell. (2000). *MetroSelect® single-line scanner: Configuration guide*. Fort Mill, SC: Author."
+
+  # ------------------------------------------------------- audio / video
+  - id: film
+    name: Film
+    group: av
+    pattern: "{contributors}. ({year}). *{title}* [Motion picture]. {country}: {studio}."
+    source: {page: tvfilmvideo, section: "Film / Movie"}
+    examples:
+      - "Scorsese, M. (Producer), & Lonergan, K. (Writer/Director). (2000). *You can count on me* [Motion picture]. United States: Paramount Pictures."
+
+  - id: tv_series
+    name: Television series
+    group: av
+    pattern: "{contributors}. ({year}). *{title}* [Television series]. {country}: {studio}."
+    source: {page: tvfilmvideo, section: "Television series"}
+    examples:
+      - "Laing, J. (Producer). (2006). *Outrageous fortune* [Television series]. New Zealand: South Pacific Pictures."
+
+  - id: tv_episode
+    name: Single episode of a television series
+    group: av
+    pattern: "{contributors}. ({year}). {title} [Television series episode]. In {series_producer} (Executive producer), *{series_title}*. {location}: {studio}."
+    source: {page: tvfilmvideo, section: "Single episode in a television series"}
+    examples:
+      - "Egan, D. (Writer), & Alexander, J. (Director). (2005). Failure to communicate [Television series episode]. In D. Shore (Executive producer), *House*. New York, NY: Fox Broadcasting."
+
+  - id: online_video
+    name: Online video (YouTube etc.), podcast, streaming video, DVD
+    group: av
+    pattern: "{author}[ [{screen_name}]]. ({year}, {month} {day}). *{title}* [{description}]. {retrieved_from|available_from}"
+    source: {page: tvfilmvideo, section: "Video & DVD; Social media: Video podcasts / Audio podcast"}
+    notes:
+      - "Exact date of the post; no retrieval date."
+      - "A video that is part of a series of blog posts: title NOT italic (see online_video_series)."
+    examples:
+      - "Bellofolletti. (2009, April 8). *Ghost caught on surveillance camera* [Video file]. Retrieved from http://www.youtube.com/watch?v=Dq1ms2JhYBI&feature=related"
+      - "Dunning, B. [volleybrian]. (2011, January 12). *inFact: Conspiracy theories* [Video file]. Retrieved from http://www.youtube.com/watch?v=AEijdTeBMRM&index=5&feature=plcp"
+      - "Van Nuys, D. (Producer). (2007, April 7). *The anatomy of a lobotomist* [Audio podcast]. Retrieved from http://www.shrinkrapradio.com/2007/04/07/84-anatomy-lobotomist"
+
+  - id: online_video_series
+    name: Online video that is part of a series of blog posts
+    group: av
+    pattern: "{author} ({year}, {month} {day}). {title} [Video file]. Retrieved from {url}"
+    source: {page: tvfilmvideo, section: "YouTube video blog post"}
+    examples:
+      - "Norton, R. (2006, November 4). How to train a cat to operate a light switch [Video file]. Retrieved from http://www.youtube.com/w?v=IkMOd9PVuKg"
+
+  # ------------------------------------------------------------ social
+  - id: blog_post
+    name: Blog post
+    group: social
+    pattern: "{author} ({year}, {month} {day}). {title} [Blog post]. Retrieved from {url}"
+    source: {page: blogs, section: "Blogs"}
+    notes:
+      - "Post title not italic."
+    examples:
+      - "Hirst, M. (2009, April 3). Public television for $1 a day [Blog post]. Retrieved from http://ethicalmartini.wordpress.com/2009/04/03/public-television-for-1-a-day/"
+
+  # ------------------------------------------------- standards & patents
+  - id: standard
+    name: Standard
+    group: standard
+    pattern: "{corporate_author}. ({year}). *{title}* ({standard_number}). {retrieved_from|location_publisher}"
+    source: {page: standards, section: "Standards"}
+    notes:
+      - "Joint standard: use the first organisation."
+    examples:
+      - "Standards Australia. (2009). *Risk management: Principles and guidelines* (AS/NZS ISO 31000:2009). Homebush, NSW: Standards Australia."
+      - "Standards New Zealand. (2013). *Conditions of contract for building and civil engineering construction* (NZS 3910:2013). Retrieved from https://shop-standards-govt-nz"
+
+  - id: patent
+    name: Patent
+    group: standard
+    pattern: "{author} ({year}). *{patent_identifier}*. {location}: {source_name}."
+    source: {page: standards, section: "Patents"}
+    notes:
+      - "No patent title; date the patent was issued."
+    examples:
+      - "Fry, A. L. (1993). *U.S. Patent No. 5,194,299*. Washington, DC: U.S. Patent and Trademark Office."
+
+# Cited in the text only — must NOT appear in the reference list (rule LST-INTEXTONLY-01).
+in_text_only:
+  - id: personal_communication
+    name: Personal communication (emails, letters, interviews, conversations, own lecture notes)
+    source: {page: personalcommunications, section: "Personal communications"}
+    in_text_example: "(I. Tokugawa, personal communication, January 25, 2019)"
+  - id: entire_website
+    name: An entire website
+    source: {page: websites, section: "Citing an entire website"}
+    in_text_example: "(http://www.kidspsyche.org)"
+  - id: social_media_feed
+    name: Facebook or Twitter feed
+    source: {page: blogs, section: "Facebook or Twitter feed"}
+
+# Guide pages not covered by rulebook v1. References of these types are reported as
+# "Needs review: source type not covered by rulebook v1".
+deferred:
+  - {page: legislation, reason: "New Zealand legislation and case law"}
+  - {page: health, reason: "Specific health examples (data sheets, clinical resources)"}
+  - {page: tables, reason: "Tables, figures and images"}
+  - {page: page-4586645, reason: "Exhibition catalogue"}
+  - {page: software, section: "Computer games", reason: "Game Studies format, not APA"}
+  - {page: blogs, section: "Facebook or Twitter message", reason: "Guide links to the APA blog only; no format given"}

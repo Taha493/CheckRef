@@ -1,0 +1,33 @@
+[Unit]
+Description=CiteSure reference checker (web app and check workers)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=citesure
+Group=citesure
+WorkingDirectory=/opt/citesure
+EnvironmentFile=/etc/citesure.env
+Environment=CHECKREF_JOBS_DIR=/var/lib/citesure/jobs
+Environment=XDG_CACHE_HOME=/var/lib/citesure/cache
+Environment=PYTHONDONTWRITEBYTECODE=1
+ExecStart=/opt/citesure/.venv/bin/checkref serve --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+
+# The app can write only to its own state folder (job folders, font cache).
+StateDirectory=citesure
+StateDirectoryMode=0700
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+NoNewPrivileges=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryMax=10G
+
+[Install]
+WantedBy=multi-user.target

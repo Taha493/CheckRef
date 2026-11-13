@@ -1,0 +1,131 @@
+{
+  "pdf": {
+    "file": "APA_6th_brief_guide_March_2019v2.pdf",
+    "sha256_file": "6eb60d23ce2c0af761b4a4a08f0c91e14274deef86e0ea6d7074ba5d9bf77e74",
+    "sha256_md": "8f198c2a1e33d4a5bf064e967ccfe9c61a4dc9414aee5174ef0ba2824dd2f398"
+  },
+  "pages": [
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th",
+      "slug": "index",
+      "title": "Referencing and APA style",
+      "sha256": "ec47be7cf66a09f1ecd5312c3d17719399cebe75c7e7c9b4330acc98efa49171"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/apastyle",
+      "slug": "apastyle",
+      "title": "APA referencing style",
+      "sha256": "bb3e3cbc8c358dd4ab3d269e1cd426673a48cc50a3f6d41e7ea068e468f98820"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/intextcitation",
+      "slug": "intextcitation",
+      "title": "In-text citation",
+      "sha256": "234b9a8a0ef8e8d6ef085af7eae0f6a2b16a117f2f73cc63bd61fcf1b6ef66e1"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/referencelist",
+      "slug": "referencelist",
+      "title": "Reference list",
+      "sha256": "772e4b5dcea166eb3b97b1b857071813b7295c789aa24f3644fc8da18d50eb59"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/articles",
+      "slug": "articles",
+      "title": "Articles",
+      "sha256": "86cba7c0ba53707579195695e09063c25eac397a3ef3b58aac1690587a9286c3"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/books",
+      "slug": "books",
+      "title": "Books",
+      "sha256": "53d4b2b36d8dee700792635b39249efb7956b41230729805102aeb0fd932b1b5"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/websites",
+      "slug": "websites",
+      "title": "Websites",
+      "sha256": "f7376b365f49cfaf3d540bb1531b0a0fe00a54a69979569b4c31ec50f3750ff7"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/tvfilmvideo",
+      "slug": "tvfilmvideo",
+      "title": "TV, film & video",
+      "sha256": "9e7c97e87ace207a3d8397946275c2025894fea6c8803af76b68c26ef0dde0b3"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/tables",
+      "slug": "tables",
+      "title": "Tables, figures & images",
+      "sha256": "eb6ccc04547791515504f6520a6105771d006e1d5cfdb94381170f5044261a09"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/reports",
+      "slug": "reports",
+      "title": "Reports",
+      "sha256": "ae51c46719fe15612f95994982bc19b3e051e4bbd858c406a3792ce158b19356"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/conferences",
+      "slug": "conferences",
+      "title": "Conferences",
+      "sha256": "acbedc4d3cb4cd7b3eca3aeaedaabe185772ef08043f344b23a734bcbf27aa38"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/theses",
+      "slug": "theses",
+      "title": "Theses",
+      "sha256": "02e6108ee32f0353d3faba1656b0a0226bb8531804c37947335d9e832e555c8c"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/personalcommunications",
+      "slug": "personalcommunications",
+      "title": "Personal communications",
+      "sha256": "d0f5c876aca4e8b60612e74a04089c91cc8741a8012ecb6b832cae221928abfd"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/lecturenotes",
+      "slug": "lecturenotes",
+      "title": "Lecture notes",
+      "sha256": "badcefaaf7d2d09e31d200b6862a5a1f5a73ddf4725483671bfdd63778d70cf0"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/blogs",
+      "slug": "blogs",
+      "title": "Social media",
+      "sha256": "4a1446ae6818f4141553e4b931c5fb52dd2d2859e4bcadb38822051f301dba9b"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/software",
+      "slug": "software",
+      "title": "Computer software &  mobile applications",
+      "sha256": "c2e40ec6818f761fb81b28166cee3ccd008b88d201c914ed5a0e38aa80a2b5dc"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/legislation",
+      "slug": "legislation",
+      "title": "Legislation & cases",
+      "sha256": "3ac8868c1199cea930a73017f43726d4adb6fd67dade92857c2fe9c925ee4549"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/standards",
+      "slug": "standards",
+      "title": "Standards & patents",
+      "sha256": "43b5787d98a941eea2eeefeaef60555f26e8a3502c8a9a5cbc321661adf7dc21"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/APA6th/health",
+      "slug": "health",
+      "title": "Specific health examples",
+      "sha256": "6b1d200860c1505d7b108fe8959d8a0df8afcba07b9f1a2fe821afb8b92d2dfb"
+    },
+    {
+      "url": "https://aut.ac.nz.libguides.com/c.php?g=613888&p=4586645",
+      "slug": "page-4586645",
+      "title": "Exhibition catalogue",
+      "sha256": "7e86ce32a677ad81b72044a092676d881c6c78b8c0c9d0a5929a5e1a7da57c12"
+    }
+  ],
+  "snapshot_date": "2026-11-08",
+  "start_url": "https://aut.ac.nz.libguides.com/APA6th"
+}

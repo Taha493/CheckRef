@@ -1,0 +1,52 @@
+# Guide examples that contain mistakes (spec §6.9). They are never used to derive rules.
+# action: excluded            -> not used anywhere
+#         corrected_in_templates -> used in templates.yaml only after the listed fix
+
+examples:
+  # Hyphens in page ranges are accepted (ruling 6.1 follows the guide's NB), so examples
+  # such as Orazi (2015) "2049-2056" or Freud (1953) "96-121" are NOT mistakes.
+
+  # --- spacing
+  - {page: referencelist, example: "Kasabov et al. (2016)", problem: "no space before the journal name ('applications.*Neural Networks')", action: excluded}
+
+  # --- DOI / URL (ruling 6.2)
+  - {page: articles, example: "Kasabov (2015b)", problem: "DOI prefix doubled (https://doi.org/https://doi.org/…); no publisher location (ruling 6.4); chapter title in title case; its in-text example cites 'Rush, 2015a'", action: excluded}
+  - {page: books, example: "Austen (1853)", problem: "full stop after the URL", action: excluded}
+  - {page: websites, example: "Harrison (2009) PowerPoint", problem: "no space in 'website:https://…'", action: excluded}
+  - {page: tvfilmvideo, example: "Dunning [volleybrian] (2011)", problem: "space inside the URL ('index =5')", action: corrected_in_templates, fix: "space removed"}
+
+  # --- authors and ampersand
+  - {page: books, example: "Esposito & Jain (2016)", problem: "no comma before '&'", action: excluded}
+  - {page: books, example: "Chong & Werner (2016)", problem: "no comma before '&'; '(Ed.)' for two editors; title not italic; no space before '[Custom textbook]'", action: excluded}
+  - {page: conferences, example: "Herculano-Houzel et al. (2008)", problem: "no comma before '&'; volume not italic", action: excluded}
+  - {page: referencelist, example: "Coltheart et al. (1993)", problem: "comma missing after 'Curtis, B.'; volume not italic", action: excluded}
+  - {page: referencelist, example: "Szczęsna et al. (2017)", problem: "first author's name garbled ('Szcz Ę Sna'); volume treated as title text", action: excluded}
+  - {page: conferences, example: "Porter, Omar, Campus, & Edinburgh (2008)", problem: "'Campus, C.' and 'Edinburgh, S.' are parts of an institution name, not authors", action: excluded}
+
+  # --- capitalisation (guide: journal titles in headline style, prepositions lowercase)
+  - {page: referencelist, example: "Rush et al. (2015b)", problem: "journal 'Annals Of Human Biology' capitalises the preposition 'Of'", action: excluded}
+  - {page: referencelist, example: "Barnard, de Luca, & Li (2015)", problem: "journal 'Studies In Higher Education' capitalises the preposition 'In'", action: excluded}
+  - {page: books, example: "Knox & Mayer (2009)", problem: "subtitle after the colon starts lowercase ('economic')", action: excluded}
+
+  # --- typos and formatting glitches
+  - {page: software, example: "Skyscape (2013)", problem: "title typo 'Skyscap'", action: corrected_in_templates, fix: "Skyscape"}
+  - {page: books, example: "Helmig & Thaler (2010)", problem: "no space in '(pp.151–169)'", action: corrected_in_templates, fix: "(pp. 151–169)"}
+  - {page: books, example: "Gladwell (2008)", problem: "no space before '[Kindle DX version]'", action: corrected_in_templates, fix: "space added"}
+  - {page: tvfilmvideo, example: "Egan & Alexander (2005)", problem: "semicolon after the series title '*House*;'", action: corrected_in_templates, fix: "full stop"}
+  - {page: theses, example: "Pflieger (2009)", problem: "only part of the title is italic", action: corrected_in_templates, fix: "whole title italic"}
+  - {page: conferences, example: "Markman (2003)", problem: "stray semicolon in the title ('Embodied; interaction')", action: corrected_in_templates, fix: "semicolon removed"}
+  - {page: conferences, example: "Bruner (2000)", problem: "italics misplaced (starts on the article-title full stop)", action: excluded}
+
+# In-text examples with mistakes
+in_text:
+  - {page: brief-guide-pdf, example: "(Gazda et al.,205)", problem: "wrong year (2005) and no space after the comma"}
+  - {page: brief-guide-pdf, example: "(Bellofolleti, 2009)", problem: "spelling differs from the reference (Bellofolletti)"}
+  - {page: articles, example: "(Wilson, Spies-Butcher & Stebbing, 2009)", problem: "no comma before '&' (compare the guide's '(Alred, Brusaw, & Oliu, 2009)')"}
+  - {page: articles, example: "Liu and Seale (2007) / (Liu & Searl, 2007)", problem: "names do not match the reference Li & Seale (2007)"}
+  - {page: articles, example: "(Rush, 2015a) under Kasabov (2015a)", problem: "name does not match the reference"}
+  - {page: books, example: "(Gamble, 2009)", problem: "name does not match the reference Gambles (2009)"}
+  - {page: books, example: "Alfred et al. (2009)", problem: "name does not match the reference Alred et al. (2009)"}
+  - {page: books, example: "(\"Nuke Test Inquiry,\"2009)", problem: "no space before the year"}
+  - {page: articles, example: "(\"Nuke Test Inquiry\" 2009)", problem: "no comma before the year"}
+  - {page: intextcitation, example: "(Allen, 2004; Smith 1999; Tsvetkova, 2018 )", problem: "no comma after 'Smith'; space before the closing bracket"}
+  - {page: intextcitation, example: "(Pierre Janet,1906)", problem: "no space after the comma"}

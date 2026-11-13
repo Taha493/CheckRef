@@ -1,0 +1,12 @@
+[Unit]
+Description=Keep the DuckDNS address pointing at this server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+DynamicUser=true
+EnvironmentFile=/etc/duckdns.env
+# DuckDNS answers "OK" or "KO"; an empty ip= means "the address this request comes from".
+# $$ passes a literal $ to the shell, so the token is not written into the command line.
+ExecStart=/bin/sh -c 'test "$$(curl -fsS --max-time 20 "https://www.duckdns.org/update?domains=$$DUCKDNS_DOMAIN&token=$$DUCKDNS_TOKEN&ip=")" = OK'

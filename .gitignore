@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+dist/
+build/
+
+# Private sample theses (students' names and registration numbers) — never publish
+data/theses/
+
+# Runtime job folders, local models, secrets
+jobs/
+models/
+*.gguf
+.env
+
+# Kept on the developer's laptop only: they name the sample students (public repository)
+tests/
+spec.md
+plan.md
+
+# Documents and archives: sample theses, generated reports, design drafts
+*.pdf
+*.docx
+*.doc
+*.zip
+
+# Copy of the guide's pages (the guide's own text; tools/snapshot_guide.py re-creates it).
+# Only the manifest is needed at run time.
+data/guide/html/
+data/guide/md/

@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block head %}
+<script src="/static/index.js" defer></script>
+{% if settings.turnstile_site_key %}
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+{% endif %}
+{% endblock %}
+{% block main %}
+{%- set check = '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M5.3 8.2l1.8 1.8 3.6-3.8" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' %}
+<section class="hero">
+  <div class="card hero-text">
+    <div class="eyebrow">APA 6th Edition · UVAS</div>
+    <h1>Validate thesis references against the UVAS APA 6th Edition guidelines</h1>
+    <p class="lead">CiteSure checks every reference-list entry and in-text citation in a thesis or synopsis
+      against the APA 6th Edition referencing rules prescribed by the University of Veterinary and Animal
+      Sciences (UVAS), names the rule each problem breaks, and gives a corrected reference list.</p>
+    <ul class="chips">
+      {%- for chip in ["Free, no sign-up", "File deleted after the check", "PDF or Word (.docx) files"] %}
+      <li>{{ check | safe }}{{ chip }}</li>
+      {%- endfor %}
+    </ul>
+    <div class="guide">
+      <div class="label">APA 6th Edition guidelines</div>
+      <p>Every rule CiteSure applies, and every quotation in the report, comes from this reference guide:</p>
+      <a href="{{ guide_url }}" target="_blank" rel="noopener noreferrer">{{ guide_url.split('://')[-1] }}<svg width="13" height="13"
+        viewBox="0 0 16 16" aria-hidden="true"><path d="M6 3H3v10h10v-3M9 3h4v4M13 3L7.5 8.5" stroke="currentColor" stroke-width="1.5"
+        fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
+    </div>
+  </div>
+
+  <form class="card upload" id="upload" method="post" action="/check" enctype="multipart/form-data"
+        data-max-mb="{{ settings.max_upload_mb }}">
+    <div class="sh"><span class="sno">01</span><h2>Upload a thesis</h2></div>
+    <label class="drop" id="drop">
+      <input type="file" name="file" id="file" accept=".pdf,.docx" required>
+      <span class="icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+        stroke-linejoin="round" aria-hidden="true"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg></span>
+      <strong>Drop the thesis here, or <span class="browse">browse</span></strong>
+      <span class="hint">PDF or Word (.docx) · up to {{ settings.max_upload_mb | round | int }} MB and
+        {{ settings.max_pages }} pages · scanned PDFs (page images) cannot be read</span>
+    </label>
+    <div class="picked" id="picked" aria-live="polite">
+      <span class="ficon" id="ficon">PDF</span>
+      <div><div class="fname" id="fname"></div><div class="fmeta" id="fmeta"></div></div>
+    </div>
+    {% if settings.turnstile_site_key %}
+    <div class="cf-turnstile" data-sitekey="{{ settings.turnstile_site_key }}" data-theme="light"></div>
+    {% endif %}
+    <button type="submit" class="btn primary wide" id="go"><span class="spin"></span><span class="txt">Check references</span>
+      <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.6"
+        fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <p class="hint center-text">Checks run one at a time, so you may wait briefly in a queue.</p>
+  </form>
+</section>
+
+<section class="card" id="how">
+  <div class="intro"><div class="sh"><span class="sno">02</span><h2>How it works</h2></div>
+    <p>Three steps, no account.</p></div>
+  <div class="grid three">
+    <div class="cell"><div class="n">1</div><h3>Upload</h3>
+      <p>The thesis or synopsis as PDF or Word. Only the text is read; images are ignored.</p></div>
+    <div class="cell"><div class="n">2</div><h3>Check</h3>
+      <p>Every reference and citation is compared with the APA 6th Edition guidelines and with each other.</p></div>
+    <div class="cell"><div class="n">3</div><h3>Report</h3>
+      <p>A report with each problem, the rule it breaks and its source, plus a corrected reference list.</p></div>
+  </div>
+</section>
+
+<section class="card" id="checks">
+  <div class="intro"><div class="sh"><span class="sno">03</span><h2>What it checks</h2></div>
+    <p>Format only: authors, order, punctuation, italics and capitals, as the guidelines set them out.</p></div>
+  {% set icons = {
+    "list": '<path d="M8 6h13M8 12h13M8 18h13"/><path d="M3.5 6h.01M3.5 12h.01M3.5 18h.01"/>',
+    "type": '<path d="M4 7V5h16v2M9 19h6M12 5v14"/>',
+    "link": '<path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/>',
+    "quote": '<path d="M7 7h4v4c0 3-2 5-4 6M14 7h4v4c0 3-2 5-4 6"/>',
+    "match": '<path d="M7 7h10v10"/><path d="M7 17L17 7"/>',
+    "doc": '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M9 13l2 2 4-4"/>'} %}
+  <div class="grid three">
+    {%- for icon, title, text in [
+      ("list", "Reference list", "Every entry against its source type's template: authors, year, title, journal, volume, pages, publisher."),
+      ("type", "Italics and capitals", "Journal names and volumes in italics, sentence case for titles, headline style for journals."),
+      ("link", "DOIs and URLs", "https://doi.org format, journal homepages instead of article links, retrieval dates where needed."),
+      ("quote", "In-text citations", "“&” or “and”, et al., commas, several works in one bracket, page numbers for quotes."),
+      ("match", "Citations ↔ references", "Cited but not listed, listed but never cited, years and spellings that differ."),
+      ("doc", "Corrected list", "A corrected, alphabetical reference list in the report, with gaps marked for the student.")] %}
+    <div class="cell"><span class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
+      stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">{{ icons[icon] | safe }}</svg></span>
+      <h3>{{ title }}</h3><p>{{ text }}</p></div>
+    {%- endfor %}
+  </div>
+</section>
+
+<section class="card" id="know">
+  <div class="intro"><div class="sh"><span class="sno">04</span><h2>Good to know</h2></div></div>
+  <div class="grid two">
+    <div class="cell"><h3>Private by design</h3><p>Your file is deleted as soon as the check finishes. The report is
+      deleted once the PDF report is downloaded, when you press Delete now, or after
+      {{ settings.expiry_min }} minutes at the latest.</p></div>
+    <div class="cell"><h3>Two levels</h3><p><span class="badge error">Error</span> breaks a rule of the guidelines.
+      <span class="badge needs_review">Needs review</span> means CiteSure could not decide, so please look at it yourself.</p></div>
+    <div class="cell"><h3>Every rule has a source</h3><p>Each problem names the rule it breaks and quotes the guide,
+      with a link to the page.</p></div>
+    <div class="cell"><h3>Format only</h3><p>CiteSure does not check that a source exists or that its details
+      (authors, year, pages) are true.</p></div>
+  </div>
+</section>
+{% endblock %}

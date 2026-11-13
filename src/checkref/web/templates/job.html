@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Checking… – CiteSure{% endblock %}
+{% block head %}
+<noscript><meta http-equiv="refresh" content="5"></noscript>
+<script src="/static/job.js" defer></script>
+{% endblock %}
+{% block main %}
+{%- set keys = steps | list %}
+{%- set queued = status.state == "queued" %}
+{%- set cur = keys.index(status.stage) if status.stage in keys else (-1 if queued else 0) %}
+{%- set pct = ((cur if cur > 0 else 0) * 100 / keys | length) | round | int %}
+<div class="center card narrow">
+  <div class="intro"><div class="eyebrow">Reference check</div>
+  <h1>Checking your file</h1>
+  <p>Keep this page open: the report appears here by itself. The address of this
+    page is the only way to reach your report, so you can also bookmark it.</p></div>
+
+  <div class="job {{ 'queued' if queued }}" id="job" data-id="{{ job.id }}" data-steps="{{ keys | length }}">
+    <div class="ring" aria-hidden="true">
+      <svg viewBox="0 0 190 190">
+        <circle class="bg" cx="95" cy="95" r="82"/>
+        <circle class="fg" id="ring" cx="95" cy="95" r="82" stroke-dasharray="515.2"
+                stroke-dashoffset="{{ 515.2 * (1 - pct / 100) }}"/>
+      </svg>
+      <div class="mid">
+        <span class="big" id="big">{{ ('#' ~ status.position) if queued else (pct ~ '%') }}</span>
+        <span class="small" id="small">{{ 'in the queue' if queued else 'done' }}</span>
+      </div>
+    </div>
+
+    <div>
+      <p class="stage" id="state" aria-live="polite"><span class="dots">{{
+        'Waiting for the checks ahead of yours' if queued else steps[keys[cur]] }}</span></p>
+      <span class="elapsed" id="elapsed"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+        <span id="elapsed-text">{{ 'Starting soon' if queued else 'Running' }}</span></span>
+      <ol class="stepper" id="stepper">
+        {%- for key in keys %}
+        <li class="{{ 'done' if loop.index0 < cur else ('active' if loop.index0 == cur else '') }}" data-key="{{ key }}">
+          <span class="b"><span>{{ loop.index }}</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>
+          {{ steps[key] }}
+        </li>
+        {%- endfor %}
+      </ol>
+    </div>
+  </div>
+
+  <div class="job-foot">
+    <p class="hint">Your file is deleted from the server as soon as the check finishes.</p>
+    <form method="post" action="/jobs/{{ job.id }}/delete">
+      <button type="submit" class="btn danger">Cancel and delete my file</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,852 @@
+{#- CiteSure report: the on-screen view and (with print styles) the PDF. Layout from the owner's
+    design ("Report page UI redesign", 2026-11-12): sticky contents sidebar, numbered sections
+    1 Overview · 2 Sources used · 3 Citations and reference list · 4 Rules not followed ·
+    5 Reference list, entry by entry · 6 In-text citations · 7 Corrected reference list -#}
+{%- macro runs(items, del_class='') -%}
+{%- for r in items -%}
+<span class="{{ 'i ' if r.italic }}{{ (del_class or 'chg') ~ ' ' if r.changed }}{{ 'ph' if r.placeholder }}">{{ r.text }}</span>
+{%- endfor -%}
+{%- endmacro -%}
+{%- macro level(l) -%}
+<span class="badge {{ l }}">{{ 'Error' if l == 'error' else 'Needs review' }}</span>
+{%- endmacro -%}
+{%- macro plural(n, one, many=None) -%}{{ n }} {{ one if n == 1 else (many or one ~ 's') }}{%- endmacro -%}
+{%- macro page_of(p) -%}{% if p %}<span class="pg">p. {{ p }}</span>{% endif %}{%- endmacro -%}
+{%- macro write(text) -%}
+<div class="write"><span class="k">Write</span><span class="fix">{{ text }}</span></div>
+{%- endmacro -%}
+{%- macro problem(p) -%}
+<li class="pb {{ p.level }}">
+  <div class="pb-rule">{{ level(p.level) }}<a class="code" href="#rule-{{ p.rule_id }}">{{ p.rule_id }}</a><span class="rt">{{ p.rule_title }}</span></div>
+  <div class="pb-grid">
+    <span class="k">Issue</span><span class="issue">{{ p.message }}</span>
+    {%- if p.correction %}<span class="k">Write</span><span class="fix">{{ p.correction }}</span>{% endif %}
+  </div>
+  <details class="why screen-only"><summary><span class="show">▸ Where this rule comes from</span><span class="hide">▾ Hide where this rule comes from</span></summary>{{ source(p.source) }}</details>
+</li>
+{%- endmacro -%}
+{%- macro source(s) -%}
+<div class="basis">
+  {%- if s.where %}
+  <div class="line"><strong>{{ 'Guide example' if s.example else 'Guide' }}</strong> · {{ s.where }}
+    {%- if s.url %} · <a href="{{ s.url }}" rel="noreferrer">open guide page</a>{% endif %}</div>
+  {%- if s.quote %}<div class="quote">“{{ runs(s.quote) }}”</div>{% endif %}
+  {%- endif %}
+  {%- if s.ruling %}
+  <div class="line"><strong>Project ruling {{ s.ruling }} ({{ s.ruling_title }})</strong> · {{ s.ruling_text }}</div>
+  {%- endif %}
+  {%- if s.note %}
+  <div class="line">{% if s.note_label %}<strong>{{ s.note_label }}</strong> · {% endif %}{{ s.note }}</div>
+  {%- endif %}
+</div>
+{%- endmacro -%}
+{%- macro head(no, title) -%}
+<div class="sh"><span class="sno">{{ '%02d' % no }}</span><h2>{{ title }}</h2></div>
+{%- endmacro -%}
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CiteSure report – {{ r.file_name }}</title>
+<link rel="stylesheet" href="{{ fonts }}fonts.css">
+<style>
+  :root {
+    --bg: #f6f7f8; --card: #ffffff; --soft: #f8f8fa; --soft-2: #f9fafb; --track: #edeef1; --seg: #eef0f3; --chip: #e9ebee;
+    --line: #e3e5e7; --line-2: #e9ebee; --field: #d5d7db;
+    --ink: #1c1f25; --ink-2: #2a2e34; --ink-3: #373b41; --ink-4: #3f4349; --ink-5: #51555c;
+    --muted: #5f636a; --muted-2: #6d7279; --grey-bar: #c1c4c9; --grey-fill: #a2a5aa;
+    --accent: #2855ad; --accent-hover: #17439a; --accent-ink: #224fa7; --accent-bg: #e5efff; --accent-soft: #95b2e5;
+    --err: #b02a2d; --err-strike: #c13c3b; --err-bg: #ffedeb; --err-soft: #fff1ef; --err-line: #f8d9d6; --err-border: #ebd0ce; --err-ink: #3c2826;
+    --rev: #845011; --rev-num: #915c08; --rev-bg: #fff0d0;
+    --ok: #036639; --ok-num: #156f41; --ok-bar: #2c965d; --ok-bg: #e3f8e9; --ok-soft: #f6f9f7; --ok-line: #dbe9df;
+    --fix-bg: #ddf6e4; --ins-bg: #c6f1d3; --ins-ink: #09311b; --ph-bg: #feeec1; --ph-ink: #633f0c;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+    --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+  body { margin: 0; background: var(--bg); color: var(--ink); -webkit-font-smoothing: antialiased; font: 14px/1.55 var(--sans); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { color: var(--accent-hover); text-decoration: underline; }
+  h1, h2, h3 { margin: 0; }
+  p { margin: 0; }
+  button { font: inherit; }
+  .i { font-style: italic; }
+  .serif { font-family: var(--serif); }
+  .muted { color: var(--muted); }
+  .label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .pg { font: 11.5px var(--mono); color: var(--muted); white-space: nowrap; }
+  .code { font: 11.5px var(--mono); color: var(--ink-5); white-space: nowrap; }
+  a.code:hover { color: var(--accent); }
+  .chip { font: 11.5px var(--mono); padding: 1px 6px; border-radius: 4px; background: var(--chip); color: var(--ink); white-space: nowrap; }
+  a.chip:hover { color: var(--accent); text-decoration: none; }
+
+  /* changes in reference text */
+  .del { text-decoration: line-through; text-decoration-color: var(--err-strike); color: var(--err); background: var(--err-soft); }
+  .chg { background: var(--ins-bg); color: var(--ins-ink); border-radius: 3px; padding: 0 2px; }
+  .ph { background: var(--ph-bg); color: var(--ph-ink); border-radius: 3px; padding: 0 3px; }
+
+  /* badges */
+  .badge { display: inline-block; font-size: 11.5px; font-weight: 600; line-height: 1.55; padding: 1px 7px; border-radius: 4px; white-space: nowrap; }
+  .badge.error { background: var(--err-bg); color: var(--err); }
+  .badge.needs_review { background: var(--rev-bg); color: var(--rev); }
+  .badge.correct, .badge.ok { background: var(--ok-bg); color: var(--ok); }
+  .badge.corrected, .badge.partial { background: var(--accent-bg); color: var(--accent-ink); }
+  .badge.not_corrected { background: var(--track); color: var(--ink-5); }
+
+  /* top bar (web view only) */
+  .topbar { position: sticky; top: 0; z-index: 10; background: rgba(255,255,255,.92); border-bottom: 1px solid var(--line);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  .topbar .in { max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; gap: 12px 16px; flex-wrap: wrap; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .logo { width: 26px; height: 26px; border-radius: 6px; background: var(--accent); display: flex; align-items: center; justify-content: center; }
+  .brand b { font-weight: 600; font-size: 15px; letter-spacing: -.01em; }
+  .brand .sep { width: 1px; height: 18px; background: #dcdee1; margin: 0 6px; }
+  .brand .what { color: var(--muted); font-size: 13px; }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border: 1px solid var(--field); background: #fff; border-radius: 7px;
+         font-weight: 500; color: var(--ink); cursor: pointer; transition: background .15s; }
+  .btn:hover { background: var(--track); color: var(--ink); text-decoration: none; }
+  .btn.primary { border-color: var(--accent); background: var(--accent); color: #fff; }
+  .btn.primary:hover { background: var(--accent-hover); color: #fff; }
+  .btn.danger { height: 32px; padding: 0 12px; font-size: 13px; border-color: var(--err-border); color: var(--err); }
+  .btn.danger:hover { background: var(--err-soft); }
+
+  /* page: sidebar + main */
+  .page { max-width: 1280px; margin: 0 auto; padding: 28px 24px 80px; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+  .side { flex: 1 1 220px; position: sticky; top: 84px; display: flex; flex-direction: column; gap: 20px; }
+  .no-links .side { top: 24px; }
+  .toc { display: flex; flex-direction: column; gap: 2px; }
+  .toc .label { padding: 0 10px 8px; }
+  .toc a { display: flex; gap: 10px; padding: 7px 10px; border-radius: 6px; color: var(--ink-2); }
+  .toc a:hover { background: var(--line-2); text-decoration: none; color: var(--ink-2); }
+  .toc a span { font: 12px var(--mono); color: var(--muted-2); width: 18px; padding-top: 1px; }
+  .toggles { display: flex; gap: 16px; padding: 0 10px; }
+  .link-btn { border: 0; background: none; padding: 0; font-size: 13px; font-weight: 500; color: var(--accent); cursor: pointer; }
+  .link-btn:hover { color: var(--accent-hover); text-decoration: underline; }
+  .side .del-box { border-top: 1px solid var(--line); padding: 16px 10px 0; display: flex; flex-direction: column; gap: 10px; }
+  .side .del-box p { font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+  .side form { margin: 0; }
+  main { flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+
+  /* cards and section headings */
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 28px 32px; display: flex; flex-direction: column; gap: 20px; }
+  .sh { display: flex; align-items: baseline; gap: 12px; }
+  .sno { font: 13px var(--mono); color: var(--muted-2); }
+  h2 { font-size: 19px; font-weight: 600; letter-spacing: -.01em; }
+  .intro { display: flex; flex-direction: column; gap: 6px; }
+  .intro > p { color: var(--muted); }
+  .small { font-size: 12.5px; color: var(--muted); }
+
+  /* cover */
+  .cover { gap: 18px; }
+  .cover .eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+  .cover h1 { font-size: 28px; line-height: 1.2; font-weight: 600; letter-spacing: -.02em; overflow-wrap: anywhere; }
+  .cover .meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+  .cover .meta .ver { font: 12px var(--mono); }
+  .alert { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 8px; background: var(--err-soft); border: 1px solid var(--err-line);
+           font-size: 14.5px; color: var(--err-ink); }
+  .alert svg { flex: none; margin-top: 2px; color: var(--err); }
+  .alert strong { font-weight: 600; }
+  .alert.good { background: var(--ok-soft); border-color: var(--ok-line); color: #173523; }
+  .alert.good svg { color: var(--ok-num); }
+
+  /* 1 overview */
+  .figures { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); border: 1px solid var(--line); border-radius: 8px; overflow: hidden; gap: 1px; background: var(--line); }
+  .fig { background: #fff; padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; }
+  .fig .n { font-size: 30px; font-weight: 600; letter-spacing: -.02em; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .fig .fl { font-weight: 500; }
+  .fig .s { font-size: 12.5px; color: var(--muted); }
+  .fig.err .n { color: var(--err); } .fig.rev .n { color: var(--rev-num); }
+  .outcome { display: flex; flex-direction: column; gap: 12px; }
+  .stack { display: flex; height: 10px; border-radius: 5px; overflow: hidden; gap: 2px; background: var(--track); }
+  .stack span { display: block; }
+  .s-correct { background: var(--ok-bar); } .s-corrected { background: var(--accent); } .s-partial { background: var(--accent-soft); } .s-not_corrected { background: var(--grey-bar); }
+  .legend { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 24px; font-size: 13px; }
+  .legend > div { display: flex; gap: 8px; align-items: baseline; }
+  .legend i { width: 9px; height: 9px; border-radius: 2px; flex: none; }
+  .legend strong { font-weight: 600; }
+
+  /* 2 sources used */
+  .types { display: flex; flex-direction: column; border-bottom: 1px solid var(--line); }
+  .tgroup { display: flex; flex-direction: column; gap: 10px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .tgroup .gh { display: flex; justify-content: space-between; gap: 12px; font-weight: 600; }
+  .tgroup .gh small { font-weight: 400; color: var(--muted); font-size: 12.5px; margin-left: 4px; }
+  .trows { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 16px; align-items: center; padding-left: 14px; }
+  .trows .name { color: var(--ink-3); }
+  .trows .c { font-weight: 500; text-align: right; }
+  .bar { grid-column: 1 / -1; height: 5px; border-radius: 3px; background: var(--track); margin-bottom: 4px; }
+  .bar span { display: block; height: 100%; border-radius: 3px; background: var(--accent); }
+  .unread .bar span { background: var(--grey-fill); }
+  .recency { display: flex; flex-direction: column; gap: 8px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--soft); }
+  .recency h3 { font-size: 14.5px; font-weight: 600; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .recency h3 .muted { font-weight: 400; font-size: 13px; }
+  details.rlist > summary { cursor: pointer; font-size: 13px; font-weight: 500; color: var(--ink-3); }
+  details.rlist > summary:hover { color: var(--accent); }
+  details.rlist p { margin-top: 6px; font-size: 13px; color: var(--muted); }
+
+  /* 3 citations and reference list */
+  .rows { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  .crow { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 16px; padding: 16px 18px; align-items: start; border-top: 1px solid var(--line); }
+  .crow:first-child { border-top: 0; }
+  .crow .n { font-size: 22px; font-weight: 600; line-height: 1.2; color: var(--err); }
+  .crow .n.zero { color: var(--ok-num); }
+  .crow .t { font-weight: 600; }
+  .crow .sub { font-size: 12.5px; color: var(--muted); }
+  .crow .items { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .crow .item { padding: 12px 14px; background: var(--soft); border-radius: 6px; display: flex; flex-direction: column; gap: 5px; }
+  .crow .top { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  .crow .top .what { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; min-width: 0; }
+  .crow .top a.serif { font-size: 15px; color: var(--ink); }
+  .crow .top a.serif:hover { color: var(--accent); }
+  .crow .msg { font-size: 13px; color: var(--ink-5); }
+  .ok-line { margin-top: 10px; display: flex; gap: 8px; align-items: center; font-size: 13px; font-weight: 500; color: var(--ok); }
+  .ok-line svg { flex: none; }
+  .write { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: baseline; }
+  .k { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+  .fix { font-family: var(--serif); font-size: 15px; line-height: 1.5; background: var(--fix-bg); padding: 2px 8px; border-radius: 4px; justify-self: start; }
+
+  /* segmented filters and search */
+  .seg { display: flex; gap: 4px; padding: 3px; background: var(--seg); border-radius: 8px; align-self: flex-start; flex-wrap: wrap; }
+  .seg button { border: 0; height: 30px; padding: 0 12px; border-radius: 6px; background: transparent; font-size: 13px; font-weight: 500; color: var(--ink-4); cursor: pointer; }
+  .seg button span { color: var(--muted-2); margin-left: 2px; }
+  .seg button[aria-pressed="true"] { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.08); font-weight: 600; color: var(--ink); }
+  .seg button[aria-pressed="true"] span { color: var(--muted); font-weight: 500; }
+  .tools { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .tools input { flex: 1 1 220px; height: 36px; padding: 0 12px; border: 1px solid var(--field); border-radius: 7px; font: inherit; font-size: 13.5px;
+                 color: inherit; outline: none; background: #fff; }
+  .tools input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(40,85,173,.12); }
+  .tools .shown { font-size: 12.5px; color: var(--muted); }
+
+  /* 4 rules not followed */
+  .rules { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; }
+  details.rule { border-top: 1px solid var(--line); margin-top: -1px; }
+  details.rule > summary { list-style: none; cursor: pointer; padding: 14px 18px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; background: #fff; }
+  details.rule > summary::-webkit-details-marker { display: none; }
+  details.rule > summary:hover { background: var(--soft-2); }
+  details.rule > summary:focus-visible, details.sec > summary:focus-visible { outline: 3px solid rgba(40,85,173,.3); outline-offset: -3px; }
+  .rule .left { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .rule .tags { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .rule .title { font-weight: 600; font-size: 14.5px; }
+  .rule .right { display: flex; align-items: center; gap: 14px; }
+  .rule .count { display: flex; flex-direction: column; align-items: flex-end; line-height: 1.2; }
+  .rule .count b { font-size: 18px; font-weight: 600; }
+  .rule .count small { font-size: 11.5px; color: var(--muted); }
+  .chev { color: var(--muted); flex: none; transition: transform .2s; }
+  details[open] > summary .chev { transform: rotate(180deg); }
+  .rule-body { padding: 4px 18px 18px; display: flex; flex-direction: column; gap: 16px; }
+  .src-box { display: flex; flex-direction: column; gap: 8px; padding: 14px 16px; background: var(--soft); border-radius: 6px; }
+  .basis { display: flex; flex-direction: column; gap: 6px; }
+  .basis + .basis { border-top: 1px solid var(--line-2); padding-top: 8px; }
+  .basis .line { font-size: 13px; color: var(--ink-5); }
+  .basis .line strong { font-weight: 600; color: var(--ink-2); }
+  .basis .quote { font-family: var(--serif); font-size: 15px; line-height: 1.5; color: var(--ink); }
+  .occ { list-style: none; margin: 0; padding: 0; counter-reset: occ; }
+  .occ li { counter-increment: occ; display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; padding: 12px 0; border-bottom: 1px solid var(--line-2); }
+  .occ li::before { content: counter(occ); font: 12px var(--mono); color: var(--muted-2); padding-top: 2px; }
+  .occ .body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+  .occ .loc { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .occ .loc a { font-weight: 500; }
+  .occ .loc a.serif { font-weight: 400; font-size: 15px; color: var(--ink); }
+  .occ .loc a.serif:hover { color: var(--accent); }
+  .occ .msg { font-size: 13.5px; color: var(--ink-4); }
+
+  /* 5–7 collapsible sections */
+  details.sec { background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+  details.sec > summary { list-style: none; cursor: pointer; padding: 28px 32px; display: flex; gap: 16px; align-items: flex-start; justify-content: space-between; }
+  details.sec > summary::-webkit-details-marker { display: none; }
+  details.sec[open] > summary { padding-bottom: 0; }
+  details.sec > summary .chev { margin-top: 4px; }
+  .sec-head { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .sec-meta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: 12.5px; }
+  .sec-meta .badge { font-size: 12.5px; padding: 1px 8px; }
+  .sec-body { padding: 20px 32px 28px; display: flex; flex-direction: column; gap: 18px; }
+  .sec-body > .note-text { color: var(--muted); }
+
+  .entries { display: flex; flex-direction: column; gap: 14px; }
+  article.entry { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+  article.entry > header { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; padding: 12px 18px;
+                           background: var(--soft-2); border-bottom: 1px solid var(--line); }
+  .eh { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; min-width: 0; }
+  .eh .num { font: 12px var(--mono); color: var(--muted); }
+  .eh .name { font-weight: 600; font-size: 15px; }
+  .eh .serif { font-size: 15px; }
+  .eh .type { font-size: 12.5px; color: var(--muted); }
+  .badges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .entry-body { padding: 18px; display: flex; flex-direction: column; gap: 18px; }
+  .block { display: flex; flex-direction: column; gap: 6px; }
+  .block.problems-block { gap: 10px; }
+  .ref-text { margin: 0; font-family: var(--serif); font-size: 16px; line-height: 1.6; }
+  .corrected-box { padding: 14px 16px; border-radius: 6px; background: var(--ok-soft); border: 1px solid var(--ok-line); }
+  .entry .note { font-size: 13px; color: var(--rev); }
+  .problems { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .pb { border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+  .pb-rule { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .pb-rule .rt { font-weight: 600; }
+  .pb-grid { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 8px 12px; align-items: baseline; }
+  .pb-grid .issue { font-size: 13.5px; color: var(--ink-3); }
+  details.why > summary { list-style: none; cursor: pointer; font-size: 13px; font-weight: 500; color: var(--accent); width: max-content; max-width: 100%; }
+  details.why > summary::-webkit-details-marker { display: none; }
+  details.why > summary:hover { color: var(--accent-hover); }
+  details.why .hide, details.why[open] .show { display: none; }
+  details.why[open] .hide { display: inline; }
+  details.why .basis { margin-top: 10px; padding: 12px 14px; background: var(--soft); border-radius: 6px; }
+  .clean-list { list-style: none; margin: 0; padding: 0 18px; }
+  .clean-list li { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--line-2); }
+  .clean-list li:last-child { border-bottom: 0; }
+  .clean-list .num { font: 12px var(--mono); color: var(--muted); padding-top: 4px; }
+  .clean-list .ref-text { font-size: 15px; line-height: 1.55; }
+  .empty-view { padding: 24px; text-align: center; color: var(--muted); border: 1px dashed var(--field); border-radius: 8px; }
+  .empty-view[hidden] { display: none; }
+  .hang p { margin: 0 0 12px; padding-left: 0.5in; text-indent: -0.5in; }
+  .flash { animation: flash 1.6s ease; }
+  @keyframes flash { 0%, 30% { box-shadow: 0 0 0 3px rgba(40,85,173,.35); } 100% { box-shadow: 0 0 0 3px rgba(40,85,173,0); } }
+  footer { font-size: 12.5px; color: var(--muted); padding: 4px 4px 0; display: flex; flex-direction: column; gap: 10px; }
+  footer .credits { display: flex; flex-wrap: wrap; gap: 4px 24px; padding-top: 12px; border-top: 1px solid var(--line); }
+  footer .credits strong { font-weight: 600; color: var(--ink-2); }
+
+  @media (max-width: 900px) {
+    .side { position: static; }
+  }
+  @media (max-width: 600px) {
+    .topbar .in { padding: 10px 16px; }
+    .brand .sep, .brand .what { display: none; }
+    .actions, .actions .btn { width: 100%; }
+    .actions .btn { justify-content: center; }
+    .page { padding: 16px 16px 60px; gap: 20px; }
+    .card { padding: 20px 18px; }
+    details.sec > summary { padding: 20px 18px; }
+    .sec-body { padding: 16px 18px 20px; }
+    .cover h1 { font-size: 22px; }
+    .toc { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+    .toc .label { flex-basis: 100%; padding: 0 0 2px; }
+    .toc a { padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: #fff; font-size: 13px; }
+    .toc a span { width: auto; }
+    .toggles, .side .del-box { padding-left: 0; padding-right: 0; }
+    .figures { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .fig { padding: 14px; } .fig .n { font-size: 26px; }
+    .crow { grid-template-columns: 32px minmax(0, 1fr); gap: 10px; padding: 14px; }
+    .entry-body { padding: 14px; }
+    article.entry > header { padding: 10px 14px; }
+    .pb { padding: 12px; }
+    .pb-grid, .write { grid-template-columns: 1fr; gap: 4px; }
+    details.rule > summary { padding: 12px 14px; }
+    .rule-body { padding: 4px 14px 14px; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation: none !important; transition: none !important; } }
+  @media print {
+    @page { size: A4; margin: 16mm 14mm 18mm; @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 9pt "IBM Plex Sans", sans-serif; color: #5f636a; } }
+    html { scroll-behavior: auto; }
+    body { background: #fff; font-size: 9.5pt; }
+    .screen-only, .side, .topbar, .seg, .tools, .chev, .empty-view { display: none !important; }
+    /* WeasyPrint cannot split flex boxes over pages or lay out a grid <summary>: plain blocks on paper. */
+    .page, main, .card, .intro, .outcome, .tgroup, .types, .sec-body, .entries, .entry-body, .block, .problems, .pb, .rule-body, .src-box,
+    .basis, .recency, .crow .items, .crow .item, .occ .body, .sec-head, .trows { display: block; }
+    .page { padding: 0; max-width: none; }
+    .card, details.sec { border: 0; border-radius: 0; padding: 0; margin: 0 0 22px; }
+    .card > * + *, .sec-body > * + *, .intro > * + *, .outcome > * + *, .entry-body > * + *, .block > * + *, .src-box > * + *,
+    .basis > * + *, .recency > * + *, .rule-body > * + *, .problems > * + *, .pb > * + *, .crow .items > * + * { margin-top: 10px; }
+    .sh, details.sec > summary { display: block; padding: 0 0 6px; border-bottom: 1.5px solid var(--ink); break-after: avoid; }
+    .card > .sh, .card > .intro { margin-bottom: 14px; }
+    .sno { margin-right: 10px; } .sh h2 { display: inline; }
+    details.sec .sh { border: 0; padding: 0; }
+    .figures { grid-template-columns: repeat(4, 1fr); }
+    .legend { grid-template-columns: repeat(2, 1fr); } .legend > div { display: block; }
+    .legend i { display: inline-block; vertical-align: middle; margin-right: 6px; }
+    article.entry > header, .eh { display: block; } .eh > * + * { margin-left: 10px; }
+    article.entry > header .badges { display: block; margin-top: 4px; } .badges .badge + .badge { margin-left: 6px; }
+    .trows .name { display: inline-block; width: 88%; } .trows .c { display: inline-block; width: 11%; }
+    .trows .bar { margin: 4px 0 8px; }
+    .cover { border-bottom: 2px solid var(--ink); padding-bottom: 14px; }
+    details.sec > summary .sec-meta { margin-top: 6px; }
+    details.sec[open] > summary { padding-bottom: 6px; }
+    .sec-body { padding: 14px 0 0; }
+    .figures { break-inside: avoid; }
+    .crow, .tgroup, .occ li, .pb, .clean-list li, .crow .item { break-inside: avoid; }
+    details.rule > summary { display: flex; justify-content: space-between; gap: 12px; padding: 10px 0; break-after: avoid; }
+    .rules, .rows { border: 0; border-radius: 0; }
+    .crow { padding: 12px 0; }
+    .rule-body { padding: 0 0 12px; }
+    /* On paper the places are a compact list; sections 5 and 6 give each problem in full. */
+    .occ li { display: inline; border: 0; padding: 0; }
+    .occ li::before { content: none; }
+    .occ li:not(:last-child)::after { content: "; "; }
+    .occ .body, .occ .loc { display: inline; }
+    .occ .msg, .occ .write { display: none; }
+    article.entry { break-inside: auto; }
+    article.entry > header { break-after: avoid; padding: 8px 12px; }
+    .entry-body { padding: 12px; }
+    .ref-text { font-size: 11pt; }
+    a { color: inherit; }
+    h2, h3, .label { break-after: avoid; }
+  }
+</style>
+</head>
+<body class="{{ 'links' if links else 'no-links' }}">
+{%- set ok_svg = '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M5.3 8.2l1.8 1.8 3.6-3.8" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' %}
+{%- set warn_svg = '<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 4.8v3.8M8 10.8v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>' %}
+{%- set good_svg = '<svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.5" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M5.3 8.2l1.8 1.8 3.6-3.8" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' %}
+{%- set chev = '<svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' %}
+{%- set dl_svg = '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2v8m0 0l-3-3m3 3l3-3M3 13h10" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>' %}
+{%- set clean = r.items | selectattr('status', 'equalto', 'correct') | rejectattr('problems') | list %}
+{%- set flagged = r.items | length - clean | length %}
+{%- set ref_err = r.items | sum(attribute='errors') %}
+{%- set ref_rev = r.items | sum(attribute='reviews') %}
+{%- set cite_problems = r.citation_items | map(attribute='problems') | map('length') | sum %}
+{%- set placeholders = r.corrected_list | map('selectattr', 'placeholder') | map('list') | map('length') | sum %}
+{%- set open = ' open' if printing else '' %}
+{%- set status_notes = {'Correct': 'no change needed', 'Corrected': 'CiteSure fixed every error', 'Partly corrected': 'some errors need the student', 'Not corrected': 'could not be read reliably'} %}
+{%- set status_class = {'Correct': 'correct', 'Corrected': 'corrected', 'Partly corrected': 'partial', 'Not corrected': 'not_corrected'} %}
+{% if links %}
+<header class="topbar screen-only"><div class="in">
+  <div class="brand"><span class="logo"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+    <b>CiteSure</b><span class="sep"></span><span class="what">Reference check report</span></div>
+  <div class="actions">
+    <a class="btn primary" href="{{ links.pdf }}">{{ dl_svg | safe }}Download PDF report</a>
+  </div>
+</div></header>
+{% endif %}
+<div class="page">
+
+  <aside class="side screen-only">
+    <nav class="toc" aria-label="Contents">
+      <div class="label">Contents</div>
+      <a href="#overview"><span>01</span>Overview</a>
+      <a href="#sources"><span>02</span>Sources used</a>
+      <a href="#consistency"><span>03</span>Citations and reference list</a>
+      <a href="#rules"><span>04</span>Rules not followed</a>
+      <a href="#references"><span>05</span>Entries</a>
+      <a href="#citations"><span>06</span>In-text citations</a>
+      <a href="#corrected"><span>07</span>Corrected list</a>
+    </nav>
+    <div class="toggles"><button type="button" class="link-btn" data-all="open">Expand all</button><button type="button" class="link-btn" data-all="close">Collapse all</button></div>
+    {%- if links %}
+    <div class="del-box">
+      <p>{{ links.note }}</p>
+      <form method="post" action="{{ links.delete }}"><button type="submit" class="btn danger"><svg width="13" height="13" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 4h10M6.5 4V2.5h3V4M4.5 4l.6 9.5h5.8l.6-9.5" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg>Delete now</button></form>
+    </div>
+    {%- endif %}
+  </aside>
+
+  <main>
+    <div class="card cover">
+      <div class="intro">
+        <div class="eyebrow">Reference check report</div>
+        <h1>{{ r.file_name }}</h1>
+        <div class="meta"><span>Checked {{ r.generated }}</span><span>Against the APA 6th Edition guidelines prescribed by UVAS (guide snapshot {{ r.guide_snapshot }})</span><span class="ver">CiteSure {{ r.engine_version }}</span></div>
+      </div>
+      {%- if flagged or r.citation_items or r.list_problems %}
+      {%- set nm, nu = r.cited_not_listed | length, r.listed_not_cited | length %}
+      <div class="alert">{{ warn_svg | safe }}<p>
+        <strong>{{ flagged }} of {{ r.references }}</strong> reference-list entries need attention
+        {%- if r.citation_items %}, and <strong>{{ plural(r.citation_items | length, 'in-text citation') }}</strong> {{ 'has' if r.citation_items | length == 1 else 'have' }} problems{% endif %}.
+        {%- if nm %} {{ plural(nm, 'citation') }} {{ 'is' if nm == 1 else 'are' }} missing from the reference list{{ '.' if not nu }}{% endif %}
+        {%- if nu %}{{ ' and' if nm }} {{ plural(nu, 'reference-list entry', 'reference-list entries') }} {{ 'is' if nu == 1 else 'are' }} never cited.{% endif %}
+        {%- if r.list_problems %} The reference list as a whole has {{ plural(r.list_problems | length, 'problem') }}.{% endif %}</p></div>
+      {%- else %}
+      <div class="alert good">{{ good_svg | safe }}<p>No problems found in the {{ r.references }} references and {{ r.citations }} in-text citations.</p></div>
+      {%- endif %}
+    </div>
+
+    {#- 1 ---------------------------------------------------------------- overview #}
+    <section class="card" id="overview">
+      {{ head(1, 'Overview') }}
+      <div class="figures">
+        <div class="fig"><div class="n">{{ r.references }}</div><div class="fl">Reference-list entries</div><div class="s">entries in the bibliography</div></div>
+        <div class="fig"><div class="n">{{ r.citations }}</div><div class="fl">In-text citations</div><div class="s">each work named counts once, so (A, 2001; B, 2002) counts 2</div></div>
+        <div class="fig err"><div class="n">{{ r.errors }}</div><div class="fl">Errors</div><div class="s">break a rule of the guide</div></div>
+        <div class="fig rev"><div class="n">{{ r.needs_review }}</div><div class="fl">Need review</div><div class="s">CiteSure could not decide; check by hand</div></div>
+      </div>
+      <div class="outcome">
+        <div class="label">Reference-list entries after checking</div>
+        <div class="stack" role="img" aria-label="{% for label, n in r.statuses.items() %}{{ label }}: {{ n }}{{ ', ' if not loop.last }}{% endfor %}">
+          {%- for label, n in r.statuses.items() if n %}<span class="s-{{ status_class[label] }}" style="width: {{ (n / r.references * 100) | round(2) }}%"></span>{% endfor %}
+        </div>
+        <div class="legend">
+          {%- for label, n in r.statuses.items() %}
+          <div><i class="s-{{ status_class[label] }}"></i><span><strong>{{ n }}</strong> {{ label }} <span class="muted">· {{ status_notes[label] }}</span></span></div>
+          {%- endfor %}
+        </div>
+      </div>
+    </section>
+
+    {#- 2 ---------------------------------------------------------------- sources used #}
+    <section class="card" id="sources">
+      <div class="intro">{{ head(2, 'Sources used') }}
+        <p>The {{ r.references }} reference-list entries by type of source, as CiteSure classified them with the guide's formats.</p></div>
+      {%- if r.type_groups %}
+      <div class="types">
+        {%- for g in r.type_groups %}
+        <div class="tgroup{{ ' unread' if g.label == 'Not classified' }}">
+          <div class="gh"><span>{{ g.label }}</span><span>{{ g.count }}<small>{{ (g.count / r.references * 100) | round | int }}%</small></span></div>
+          <div class="trows">
+            {%- for name, n in g.types %}
+            <span class="name">{{ name }}</span><span class="c">{{ n }}</span>
+            <div class="bar"><span style="width: {{ (n / r.references * 100) | round(2) }}%"></span></div>
+            {%- endfor %}
+          </div>
+        </div>
+        {%- endfor %}
+      </div>
+      {%- else %}
+      <p class="muted">No reference-list entries were found.</p>
+      {%- endif %}
+      <p class="small">The guide gives one format for a journal article in print and online (with a DOI or without one),
+        so CiteSure counts these together; online articles without a DOI, which need “Retrieved from” and a URL, are counted
+        separately. “Not classified” entries could not be matched to any of the guide's formats; see section 5.</p>
+      {%- if r.recency %}
+      {%- set rc = r.recency %}
+      <div class="recency">
+        <h3>Recency <span class="muted">(university rule, not APA)</span>
+          {% if rc.share_actual >= rc.share_required %}<span class="badge ok">met</span>{% else %}<span class="badge error">not met</span>{% endif %}</h3>
+        <p><strong>{{ (rc.share_actual * 100) | round | int }}%</strong> of references are from
+          {{ rc.window[0] }}–{{ rc.window[1] }} ({{ rc.recent }} of {{ rc.total }} dated references);
+          the required share is {{ (rc.share_required * 100) | round | int }}%.</p>
+        {%- if rc.older %}
+        <details class="rlist"{{ open }}><summary>Older references ({{ rc.older | length }})</summary><p>{{ rc.older | join('; ') }}.</p></details>
+        {%- endif %}
+        {%- if rc.non_journal %}
+        <details class="rlist"{{ open }}><summary>Non-journal sources, counted in the total ({{ rc.non_journal | length }})</summary><p>{{ rc.non_journal | join('; ') }}.</p></details>
+        {%- endif %}
+        {%- if rc.undated %}
+        <details class="rlist"{{ open }}><summary>Not counted, no year ({{ rc.undated | length }})</summary><p>{{ rc.undated | join('; ') }}.</p></details>
+        {%- endif %}
+      </div>
+      {%- endif %}
+    </section>
+
+    {#- 3 ---------------------------------------------------------------- consistency #}
+    <section class="card" id="consistency">
+      <div class="intro">{{ head(3, 'Citations and reference list') }}
+        <p>Every in-text citation should have an entry in the reference list, and every entry should be cited in the text.</p></div>
+      <div class="rows">
+        <div class="crow">
+          <div class="n{{ ' zero' if not r.cited_not_listed }}">{{ r.cited_not_listed | length }}</div>
+          <div><div class="t">Cited in the text, missing from the reference list</div>
+            <div class="sub">Rule {% if r.cited_not_listed %}<a class="code" href="#rule-MAT-01">MAT-01</a>{% else %}<span class="code">MAT-01</span>{% endif %}</div>
+            {%- if r.cited_not_listed %}
+            <div class="items">
+              {%- for o in r.cited_not_listed %}
+              <div class="item"><div class="top"><a class="serif" href="#{{ o.anchor }}">{{ o.where }}</a>{{ page_of(o.problem.page) }}</div>
+                <div class="msg">{{ o.problem.message }}</div></div>
+              {%- endfor %}
+            </div>
+            {%- else %}
+            <div class="ok-line">{{ ok_svg | safe }}Every in-text citation was found in the reference list.</div>
+            {%- endif %}
+          </div>
+        </div>
+        <div class="crow">
+          <div class="n{{ ' zero' if not r.listed_not_cited }}">{{ r.listed_not_cited | length }}</div>
+          <div><div class="t">In the reference list, never cited in the text</div>
+            <div class="sub">Rule {% if r.listed_not_cited %}<a class="code" href="#rule-MAT-02">MAT-02</a>{% else %}<span class="code">MAT-02</span>{% endif %}</div>
+            {%- if r.listed_not_cited %}
+            <div class="items">
+              {%- for o in r.listed_not_cited %}
+              <div class="item"><div class="top"><a class="serif" href="#{{ o.anchor }}">{{ o.where }}</a>{{ page_of(o.problem.page) }}</div>
+                {%- if o.problem.message != 'This reference is never cited in the text.' %}<div class="msg">{{ o.problem.message }}</div>{% endif %}</div>
+              {%- endfor %}
+            </div>
+            {%- else %}
+            <div class="ok-line">{{ ok_svg | safe }}Every reference-list entry is cited in the text.</div>
+            {%- endif %}
+          </div>
+        </div>
+        <div class="crow">
+          <div class="n{{ ' zero' if not r.mismatches }}">{{ r.mismatches | length }}</div>
+          <div><div class="t">Citations that do not agree with their reference</div>
+            <div class="sub">Different year, spelling or year suffix, or a citation that fits more than one entry.</div>
+            {%- if r.mismatches %}
+            <div class="items">
+              {%- for o in r.mismatches %}
+              <div class="item"><div class="top"><span class="what"><a class="chip" href="#rule-{{ o.problem.rule_id }}">{{ o.problem.rule_id }}</a>
+                <a class="serif" href="#{{ o.anchor }}">{{ o.where }}</a></span>{{ page_of(o.problem.page) }}</div>
+                <div class="msg">{{ o.problem.message }}</div>
+                {%- if o.problem.correction %}{{ write(o.problem.correction) }}{% endif %}</div>
+              {%- endfor %}
+            </div>
+            {%- else %}
+            <div class="ok-line">{{ ok_svg | safe }}Every matched citation agrees with its reference.</div>
+            {%- endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {#- 4 ---------------------------------------------------------------- rules #}
+    <section class="card" id="rules">
+      <div class="intro">{{ head(4, 'Rules not followed') }}
+        <p>Each APA 6th rule that was broken, with where it comes from in the APA 6th guide and every place it occurs. Click a place to open it.</p></div>
+      {%- if r.rule_groups %}
+      {%- set rule_err = r.rule_groups | selectattr('level', 'equalto', 'error') | list | length %}
+      <div class="seg screen-only" role="group" aria-label="Show rules">
+        <button type="button" data-rf="all" aria-pressed="true">All rules <span>{{ r.rule_groups | length }}</span></button>
+        <button type="button" data-rf="error" aria-pressed="false">Errors <span>{{ rule_err }}</span></button>
+        <button type="button" data-rf="needs_review" aria-pressed="false">Needs review <span>{{ r.rule_groups | length - rule_err }}</span></button>
+      </div>
+      <div class="rules">
+        {%- for g in r.rule_groups %}
+        {%- set n = g.occurrences | length %}
+        {%- set kinds = g.occurrences | map(attribute='kind') | unique | list %}
+        {%- if kinds == ['reference'] %}{% set unit = 'reference' if n == 1 else 'references' %}
+        {%- elif kinds == ['citation'] %}{% set unit = 'citation' if n == 1 else 'citations' %}
+        {%- elif kinds == ['list'] %}{% set unit = 'reference list' %}
+        {%- else %}{% set unit = 'place' if n == 1 else 'places' %}{% endif %}
+        <details class="rule" id="rule-{{ g.rule_id }}" data-level="{{ g.level }}"{{ open }}>
+          <summary>
+            <div class="left"><div class="tags">{{ level(g.level) }}<span class="code">{{ g.rule_id }}</span></div>
+              <div class="title">{{ g.title }}</div></div>
+            <div class="right"><div class="count"><b>{{ n }}</b><small>{{ unit }}</small></div>{{ chev | safe }}</div>
+          </summary>
+          <div class="rule-body">
+            <div class="src-box"><div class="label">Where the rule comes from</div>
+              {%- for s in g.sources %}{{ source(s) }}{% endfor %}</div>
+            <div>
+              <div class="label">Where it occurs ({{ n }})</div>
+              <ol class="occ">
+                {%- for o in g.occurrences %}
+                <li><div class="body">
+                  <div class="loc">
+                    {%- if o.kind == 'list' %}<a href="#list">{{ o.where }}</a>
+                    {%- elif o.kind == 'citation' %}<a class="serif" href="#{{ o.anchor }}">{{ o.where }}</a>
+                    {%- else %}<a href="#{{ o.anchor }}">Reference {{ o.where }}</a>{% endif %}
+                    {{ page_of(o.problem.page) }}{% if o.problem.level != g.level %} {{ level(o.problem.level) }}{% endif %}</div>
+                  <div class="msg">{{ o.problem.message }}</div>
+                  {%- if o.problem.correction %}{{ write(o.problem.correction) }}{% endif %}
+                </div></li>
+                {%- endfor %}
+              </ol>
+            </div>
+          </div>
+        </details>
+        {%- endfor %}
+      </div>
+      {%- else %}
+      <div class="ok-line">{{ ok_svg | safe }}No rule of the guide was broken.</div>
+      {%- endif %}
+    </section>
+
+    {#- 5 ---------------------------------------------------------------- entries #}
+    <details class="sec" id="references"{{ open }}>
+      <summary>
+        <div class="sec-head">{{ head(5, 'Reference list, entry by entry') }}
+          <div class="sec-meta"><span class="muted">{{ plural(r.references, 'entry', 'entries') }}</span>
+            {%- if ref_err %}<span class="badge error">{{ plural(ref_err, 'error') }}</span>{% endif %}
+            {%- if ref_rev %}<span class="badge needs_review">{{ ref_rev }} need review</span>{% endif %}
+            <span class="badge correct">{{ clean | length }} correct</span></div></div>
+        {{ chev | safe }}
+      </summary>
+      <div class="sec-body">
+        <p class="note-text">Each entry as written in the thesis (<span class="del">removed or replaced</span> words struck through), the
+          problems found with the rule each one breaks, and the corrected entry: <span class="chg">changes</span> are highlighted
+          and <span class="ph">[placeholders]</span> mark information only the student can supply. A <strong>project ruling</strong>
+          is a decision made for CiteSure where the guide is unclear, silent or inconsistent.</p>
+        <div class="tools screen-only">
+          <div class="seg" role="group" aria-label="Show entries">
+            <button type="button" data-f="all" aria-pressed="true">All</button>
+            <button type="button" data-f="error" aria-pressed="false">With errors</button>
+            <button type="button" data-f="review" aria-pressed="false">Need review</button>
+            <button type="button" data-f="correct" aria-pressed="false">Correct</button>
+          </div>
+          <input type="search" placeholder="Find an author, title or word" aria-label="Find in entries">
+          <span class="shown" aria-live="polite"></span>
+        </div>
+        <div class="entries">
+          {%- if r.list_problems %}
+          <article class="entry" id="list" data-entry data-status="list"
+            data-err="{{ r.list_problems | selectattr('level', 'equalto', 'error') | list | length }}"
+            data-rev="{{ r.list_problems | selectattr('level', 'equalto', 'needs_review') | list | length }}">
+            <header><div class="eh"><span class="name">The reference list as a whole</span></div></header>
+            <div class="entry-body"><ul class="problems">
+              {%- for p in r.list_problems %}
+              {{ problem(p) }}
+              {%- endfor %}
+            </ul></div>
+          </article>
+          {%- endif %}
+
+          {%- for it in r.items %}
+          {%- if it.problems or it.status != 'correct' %}
+          <article class="entry" id="{{ it.anchor }}" data-entry data-err="{{ it.errors }}" data-rev="{{ it.reviews }}" data-status="{{ it.status }}">
+            <header>
+              <div class="eh"><span class="num">#{{ it.number }}</span><span class="name">{{ it.label }}</span>
+                <span class="type">{{ it.type_name }}{% if it.page %} · p. {{ it.page }}{% endif %}</span></div>
+              <div class="badges">
+                {%- if it.errors %}<span class="badge error">{{ plural(it.errors, 'error') }}</span>{% endif %}
+                {%- if it.reviews %}<span class="badge needs_review">{{ it.reviews }} to review</span>{% endif %}
+                <span class="badge {{ it.status }}">{{ it.status_label }}</span></div>
+            </header>
+            <div class="entry-body">
+              <div class="block"><div class="label">As written</div><p class="ref-text">{{ runs(it.original, 'del') }}</p></div>
+              {%- if it.problems %}
+              <div class="block problems-block"><div class="label">Problems ({{ it.problems | length }})</div>
+                <ul class="problems">
+                  {%- for p in it.problems %}
+                  {{ problem(p) }}
+                  {%- endfor %}
+                </ul></div>
+              {%- endif %}
+              {%- if it.corrected %}
+              <div class="block"><div class="label">Corrected entry</div><p class="ref-text corrected-box">{{ runs(it.corrected) }}</p></div>
+              {%- endif %}
+              {%- for n in it.notes %}<p class="note">{{ n }}</p>{% endfor %}
+            </div>
+          </article>
+          {%- endif %}
+          {%- endfor %}
+
+          {%- if clean %}
+          <article class="entry clean">
+            <header><div class="eh"><span class="name">{{ plural(clean | length, 'entry', 'entries') }} with no problems</span></div>
+              <div class="badges"><span class="badge correct">Correct</span></div></header>
+            <ul class="clean-list">
+              {%- for it in clean %}<li id="{{ it.anchor }}" data-entry data-err="0" data-rev="0" data-status="correct"><span class="num">#{{ it.number }}</span><span class="ref-text">{{ runs(it.original) }}</span></li>{% endfor %}
+            </ul>
+          </article>
+          {%- endif %}
+          <div class="empty-view" hidden>No entries match this view.</div>
+        </div>
+      </div>
+    </details>
+
+    {#- 6 ---------------------------------------------------------------- citations #}
+    <details class="sec" id="citations"{{ open }}>
+      <summary>
+        <div class="sec-head">{{ head(6, 'In-text citations') }}
+          <div class="sec-meta"><span class="muted">{{ plural(r.citations, 'citation') }}</span>
+            {%- if r.citation_items %}<span class="badge error">{{ r.citation_items | length }} with problems</span>
+            <span class="muted">{{ plural(cite_problems, 'problem') }} in all</span>
+            {%- else %}<span class="badge correct">no problems</span>{% endif %}</div></div>
+        {{ chev | safe }}
+      </summary>
+      <div class="sec-body">
+        {%- if r.citation_items %}
+        <p class="note-text">Each citation with a problem, as written in the thesis{% if r.has_pages %}, with its page{% endif %},
+          the rule it breaks and how to write it.</p>
+        <div class="entries">
+          {%- for c in r.citation_items %}
+          {%- set ce = c.problems | selectattr('level', 'equalto', 'error') | list | length %}
+          {%- set cr = c.problems | length - ce %}
+          <article class="entry" id="{{ c.anchor }}">
+            <header><div class="eh"><span class="num">#{{ c.number }}</span><span class="serif">{{ c.raw }}</span>
+              {%- if c.page %}<span class="type">p. {{ c.page }}</span>{% endif %}</div>
+              <div class="badges">
+                {%- if ce %}<span class="badge error">{{ plural(ce, 'error') }}</span>{% endif %}
+                {%- if cr %}<span class="badge needs_review">{{ cr }} to review</span>{% endif %}</div></header>
+            <div class="entry-body"><ul class="problems">
+              {%- for p in c.problems %}
+              {{ problem(p) }}
+              {%- endfor %}
+            </ul></div>
+          </article>
+          {%- endfor %}
+        </div>
+        {%- else %}
+        <div class="ok-line">{{ ok_svg | safe }}No problems found in the {{ r.citations }} in-text citations.</div>
+        {%- endif %}
+      </div>
+    </details>
+
+    {#- 7 ---------------------------------------------------------------- corrected list #}
+    <details class="sec" id="corrected"{{ open }}>
+      <summary>
+        <div class="sec-head">{{ head(7, 'Corrected reference list') }}
+          <div class="sec-meta"><span class="muted">{{ plural(r.corrected_list | length, 'entry', 'entries') }}, alphabetical, ready to paste</span>
+            {%- if placeholders %}<span class="badge needs_review">{{ plural(placeholders, 'placeholder') }} to fill</span>
+            {%- else %}<span class="badge correct">complete</span>{% endif %}</div></div>
+        {{ chev | safe }}
+      </summary>
+      <div class="sec-body">
+        <p class="note-text">In alphabetical order, ready to paste.
+          <span class="ph">[Placeholders]</span> still need the student's information.</p>
+        <div class="hang ref-text">
+          {%- for entry in r.corrected_list %}<p>{{ runs(entry) }}</p>{% endfor %}
+        </div>
+      </div>
+    </details>
+
+    <footer>
+      <p>CiteSure checks the format of references and citations against the APA 6th Edition guidelines
+        prescribed by UVAS. It does not check that the sources exist or that the details (authors, years,
+        pages) are true. <em>Needs review</em> marks cases the engine could not decide; please check them by hand.</p>
+      {%- if links and links.credits %}
+      <p class="credits">
+        {%- for role, name, email in links.credits %}<span>{{ role }} <strong>{{ name }}</strong> · <a href="mailto:{{ email }}">{{ email }}</a></span>{% endfor %}</p>
+      {%- endif %}
+    </footer>
+  </main>
+</div>
+<script>
+  (function () {
+    var sections = document.querySelectorAll('details.sec, details.rule, details.rlist');
+    var entries = document.querySelectorAll('[data-entry]');
+    var entryButtons = document.querySelectorAll('[data-f]');
+    var ruleButtons = document.querySelectorAll('[data-rf]');
+    var search = document.querySelector('.tools input');
+    var shown = document.querySelector('.tools .shown');
+    var empty = document.querySelector('.empty-view');
+    var filter = 'all';
+
+    function showEntries() {
+      var q = search ? search.value.trim().toLowerCase() : '';
+      var count = 0;
+      entries.forEach(function (s) {
+        var show = (filter === 'all' || (filter === 'error' && +s.dataset.err > 0) ||
+                    (filter === 'review' && +s.dataset.rev > 0) || (filter === 'correct' && s.dataset.status === 'correct')) &&
+                   (!q || s.textContent.toLowerCase().indexOf(q) >= 0);
+        s.style.display = show ? '' : 'none';
+        if (show) count++;
+      });
+      var clean = document.querySelector('.entry.clean');
+      if (clean) clean.style.display = clean.querySelector('[data-entry]:not([style*="none"])') ? '' : 'none';
+      if (shown) shown.textContent = (filter === 'all' && !q) ? '' : count + ' shown';
+      if (empty) empty.hidden = count > 0;
+    }
+    function setFilter(f) {
+      filter = f;
+      entryButtons.forEach(function (x) { x.setAttribute('aria-pressed', x.dataset.f === f ? 'true' : 'false'); });
+      showEntries();
+    }
+    entryButtons.forEach(function (b) { b.addEventListener('click', function () { setFilter(b.dataset.f); }); });
+    if (search) search.addEventListener('input', showEntries);
+
+    ruleButtons.forEach(function (b) {
+      b.addEventListener('click', function () {
+        ruleButtons.forEach(function (x) { x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        document.querySelectorAll('details.rule').forEach(function (d) {
+          d.style.display = b.dataset.rf === 'all' || d.dataset.level === b.dataset.rf ? '' : 'none';
+        });
+      });
+    });
+
+    // Open whatever holds a linked entry, citation or rule, and clear filters that hide it.
+    function reveal(id) {
+      var el = id && document.getElementById(id);
+      if (!el) return;
+      if (el.style.display === 'none' || el.closest('.entry.clean[style*="none"]')) {
+        if (search) search.value = '';
+        setFilter('all');
+      }
+      if (el.matches('details.rule') && el.style.display === 'none') ruleButtons[0].click();
+      if (el.tagName === 'DETAILS') el.open = true;
+      for (var d = el.parentElement; d; d = d.parentElement) if (d.tagName === 'DETAILS') d.open = true;
+      el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+    }
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (a) reveal(decodeURIComponent(a.getAttribute('href').slice(1)));
+    });
+    reveal(decodeURIComponent(location.hash.slice(1)));
+
+    document.querySelectorAll('[data-all]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        sections.forEach(function (d) { d.open = b.dataset.all === 'open'; });
+      });
+    });
+    window.addEventListener('beforeprint', function () { sections.forEach(function (d) { d.open = true; }); });
+  })();
+</script>
+</body>
+</html>

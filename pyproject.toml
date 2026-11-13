@@ -1,0 +1,51 @@
+[project]
+name = "checkref"
+version = "0.1.0"
+description = "Checks thesis references and in-text citations against the AUT APA 6th guide"
+authors = [
+    { name = "Taha Mahmood", email = "taha.tsf901@gmail.com" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "pdfplumber>=0.11",
+    "python-docx>=1.1",
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+    "httpx>=0.27",
+    "jinja2>=3.1",
+    "weasyprint>=62",
+    "fastapi>=0.115",
+    "uvicorn>=0.30",
+    "python-multipart>=0.0.9",
+]
+
+[project.scripts]
+checkref = "checkref.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+tools = [
+    "beautifulsoup4>=4.12",
+    "markdownify>=0.13",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
+
+[tool.uv]
+default-groups = ["dev", "tools"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]

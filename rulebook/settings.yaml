@@ -1,0 +1,71 @@
+# Word lists and limits used by the checks in rules.yaml.
+
+reference_list:
+  # Headings that identify the reference section (spec §5 ③), any letter case.
+  detect_headings: [References, Reference List, Literature Cited, Bibliography, Works Cited]
+  # Accepted without a finding (ruling 6.5). Others get LST-HEADING-02 (needs review).
+  accepted_headings: [References, Literature Cited]
+
+layout:                       # ruling 6.6
+  hanging_indent_inch: {min: 0.4, max: 0.6}   # standard 0.5 in = 36 pt = 1.27 cm
+
+capitalisation:
+  # Journal titles use headline style: "capitalise all the words, except articles and
+  # prepositions" (guide). Conjunctions are lowercase in the guide's examples
+  # ("Psychology, Public Policy, and Law").
+  headline_lowercase: [a, an, the, and, or, nor, but, as, at, by, for, in, of, "off", "on", per, to, up, via]
+  # Longer prepositions: APA 6 capitalises words of four or more letters, the AUT guide
+  # says lowercase. Either is accepted to avoid false alarms.
+  headline_either_case: [with, from, into, onto, upon, over, under, about, between, through,
+                         during, without, within, among, against, versus, towards, toward]
+
+journal_abbreviations:
+  # Title words that are standard ISO 4 abbreviations (ISSN List of Title Word Abbreviations).
+  # Two or more in a journal name -> REF-JRNL-01 error; one -> needs review. The full LTWA
+  # list replaces this in plan phase 7.
+  words: [J, Jpn, Am, Int, Res, Adv, Biol, Biotechnol, Chem, Sci, Med, Environ, Microbiol,
+          Zool, Agric, Vet, Pharm, Pharmacol, Ann, Rev, Proc, Bull, Physiol, Mol, Appl, Clin,
+          Ecol, Nat, Soc, Technol, Eng, Phys, Lett, Commun, Nutr, Entomol, Parasitol, Immunol,
+          Toxicol, Biochem, Genet, Anim, Sericult, Pak, Afr, Eur, Br, Can, Aust, Trop, Infect,
+          Dis, Epidemiol, Gen, Exp, Curr, Opin, Bot, Hortic, Sustain, Microb, Pathog, Virol,
+          Bacteriol, Mycol, Anal, Syst, Evol, Conserv, Aquac, Poult, Agron,
+          Public, Health, Plant, Food, Fish, Dairy, Methods, Indian, Asian]
+  # Ordinary English words in that list: they count only alongside another abbreviation.
+  also_words: [Public, Health, Plant, Food, Fish, Dairy, Methods, Indian, Asian, Can]
+
+authors:
+  list_all_up_to: 7           # 1–7 authors: list all
+  truncate_from: 8            # 8+: first 6, ellipsis, last author
+  truncate_keep_first: 6
+  ellipsis_forms: ["…", ". . ."]
+
+in_text:
+  all_names_always_up_to: 2        # 1–2 authors: every citation
+  all_names_first_time_up_to: 5    # 3–5 authors: all names first, then et al.
+  et_al_from_first: 6              # 6+ authors: et al. from the first citation
+
+dashes:                            # ruling 6.1 (follows the guide)
+  page_range_accepted: ["–", "-"]  # en dash (preferred) or hyphen
+  page_range_preferred: "–"        # used in corrected references
+  hyphen_lookalikes: ["‐", "‑", "−"]   # treated as '-'
+  soft_hyphen: "­"            # removed
+
+doi:
+  pattern: '^https://doi\.org/10\.\d{4,9}/\S+$'
+  wrong_prefixes: ["doi:", "DOI:", "http://dx.doi.org/", "https://dx.doi.org/", "http://doi.org/"]
+
+publisher_location:
+  # USA: "City, ST". Elsewhere: "City, Country" in full.
+  us_states: [AL, AK, AZ, AR, CA, CO, CT, DE, DC, FL, GA, HI, ID, IL, IN, IA, KS, KY, LA, ME,
+              MD, MA, MI, MN, MS, MO, MT, NE, NV, NH, NJ, NM, NY, NC, ND, OH, OK, OR, PA, RI,
+              SC, SD, TN, TX, UT, VT, VA, WA, WV, WI, WY]
+
+software:
+  # "It is not necessary to cite 'standard software' such as Microsoft Word, Java, and
+  # Adobe Photoshop, SPSS or SAS." (guide) — citing them is not an error.
+  standard: [Microsoft Word, Microsoft Excel, Java, Adobe Photoshop, SPSS, SAS]
+
+recency:                      # spec §7 — university rule, not APA
+  enabled_by_default: false
+  required_share: 0.8
+  window_years: 5

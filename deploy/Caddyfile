@@ -1,0 +1,14 @@
+# Caddy: HTTPS (automatic Let's Encrypt certificate) in front of CiteSure.
+# setup_server.sh replaces DOMAIN with the site's address.
+# No access log: visitor addresses and job addresses stay private (spec §5 ⑫).
+DOMAIN {
+	encode zstd gzip
+	request_body {
+		max_size 22MB
+	}
+	reverse_proxy 127.0.0.1:8000
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+}

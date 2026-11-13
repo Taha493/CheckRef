@@ -1,0 +1,346 @@
+# Words that keep a capital letter in sentence-case titles (rule REF-TITLE-01), one per line,
+# compared case-insensitively. Proper nouns are also learned from each thesis: words that the
+# student capitalises in the middle of sentences in the body text.
+# Months and days
+January
+February
+March
+April
+May
+June
+July
+August
+September
+October
+November
+December
+Monday
+Tuesday
+Wednesday
+Thursday
+Friday
+Saturday
+Sunday
+# Continents, regions, seas
+Africa
+African
+America
+American
+Americas
+Antarctica
+Arctic
+Asia
+Asian
+Atlantic
+Australasia
+Balkans
+Caribbean
+Caucasus
+Eurasia
+Europe
+European
+Himalaya
+Himalayan
+Himalayas
+Indian
+Latin
+Mediterranean
+Pacific
+Scandinavia
+Scandinavian
+Siberia
+Sahara
+Subcontinent
+# Countries (and common adjectives)
+Afghanistan
+Afghan
+Albania
+Algeria
+Angola
+Argentina
+Armenia
+Australia
+Australian
+Austria
+Azerbaijan
+Bahrain
+Bangladesh
+Bangladeshi
+Belarus
+Belgium
+Benin
+Bhutan
+Bolivia
+Bosnia
+Botswana
+Brazil
+Brazilian
+Brunei
+Bulgaria
+Burkina
+Burundi
+Cambodia
+Cameroon
+Canada
+Canadian
+Chad
+Chile
+China
+Chinese
+Colombia
+Congo
+Croatia
+Cuba
+Cyprus
+Czech
+Czechia
+Denmark
+Danish
+Djibouti
+Ecuador
+Egypt
+Egyptian
+Eritrea
+Estonia
+Eswatini
+Ethiopia
+Ethiopian
+Fiji
+Finland
+France
+French
+Gabon
+Gambia
+Georgia
+Germany
+German
+Ghana
+Greece
+Greek
+Guatemala
+Guinea
+Haiti
+Honduras
+Hungary
+Iceland
+India
+Indonesia
+Indonesian
+Iran
+Iranian
+Iraq
+Ireland
+Irish
+Israel
+Italy
+Italian
+Jamaica
+Japan
+Japanese
+Jordan
+Kazakhstan
+Kenya
+Kenyan
+Korea
+Korean
+Kosovo
+Kuwait
+Kyrgyzstan
+Laos
+Latvia
+Lebanon
+Lesotho
+Liberia
+Libya
+Lithuania
+Luxembourg
+Madagascar
+Malawi
+Malaysia
+Malaysian
+Maldives
+Mali
+Malta
+Mauritania
+Mauritius
+Mexico
+Mexican
+Moldova
+Mongolia
+Montenegro
+Morocco
+Mozambique
+Myanmar
+Namibia
+Nepal
+Nepalese
+Netherlands
+Dutch
+Nicaragua
+Niger
+Nigeria
+Nigerian
+Norway
+Norwegian
+Oman
+Pakistan
+Pakistani
+Palestine
+Panama
+Paraguay
+Peru
+Philippines
+Philippine
+Poland
+Polish
+Portugal
+Portuguese
+Qatar
+Romania
+Russia
+Russian
+Rwanda
+Saudi
+Arabia
+Senegal
+Serbia
+Singapore
+Slovakia
+Slovenia
+Somalia
+Spain
+Spanish
+Sri
+Lanka
+Lankan
+Sudan
+Sweden
+Swedish
+Switzerland
+Swiss
+Syria
+Taiwan
+Tajikistan
+Tanzania
+Thailand
+Thai
+Togo
+Tunisia
+Turkey
+Turkish
+Türkiye
+Turkmenistan
+Uganda
+Ukraine
+Emirates
+Britain
+British
+England
+English
+Scotland
+Wales
+Kingdom
+Uruguay
+Uzbekistan
+Venezuela
+Vietnam
+Vietnamese
+Yemen
+Zambia
+Zimbabwe
+# Regions and places common in the sample theses' fields
+Punjab
+Sindh
+Balochistan
+Khyber
+Pakhtunkhwa
+Kashmir
+Gilgit
+Baltistan
+Islamabad
+Lahore
+Karachi
+Faisalabad
+Peshawar
+Multan
+Kasur
+Alabama
+Anatolia
+Amazon
+Borneo
+Mekong
+Nile
+Yangtze
+Sumatra
+Java
+# Organisations and named systems that appear in titles
+Gram
+Bayesian
+Darwin
+Darwinian
+Mendelian
+Gaussian
+Kirby
+Bauer
+Mueller
+Hinton
+Petri
+Illumina
+Nanopore
+Western
+Northern
+Southern
+Eastern
+Bonferroni
+Pearson
+Spearman
+Kruskal
+Wallis
+Mann
+Whitney
+Tukey
+Duncan
+Fisher
+Koch
+Linnaeus
+Celsius
+Fahrenheit
+Internet
+# Multi-word names: both words keep their capitals when they appear together
+United States
+United Kingdom
+United Nations
+United Arab Emirates
+New Zealand
+New York
+New Guinea
+New South Wales
+Hong Kong
+South Africa
+South America
+South Asia
+South Korea
+North America
+North Korea
+Middle East
+Latin America
+European Union
+World Health Organization
+Saudi Arabia
+Sri Lanka
+Costa Rica
+Puerto Rico
+El Salvador
+Burkina Faso
+Sierra Leone
+Ivory Coast
+Red Sea
+Dead Sea
+South China Sea
+Indian Ocean
+Pacific Ocean
+Atlantic Ocean
+Southeast Asia
+Sub-Saharan Africa
+Great Britain
+Tree of Life
